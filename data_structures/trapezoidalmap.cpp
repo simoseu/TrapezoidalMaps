@@ -1,4 +1,4 @@
-#include "trapezoidalMap.h"
+#include "trapezoidalmap.h"
 
 TrapezoidalMap::TrapezoidalMap(){
 

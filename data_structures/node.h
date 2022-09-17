@@ -24,7 +24,7 @@ public:
 
 private:
     NodeType type;
-    // Storing the node childs
+    // Storing the "child" nodes
     // leftChild;
     // rightChild;
 
