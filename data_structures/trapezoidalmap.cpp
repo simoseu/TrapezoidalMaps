@@ -4,14 +4,14 @@ TrapezoidalMap::TrapezoidalMap(){
 
 }
 
-void TrapezoidalMap::addTrapezoid(Trapezoid trapezoid){
+void TrapezoidalMap::addTrapezoid(Trapezoid &trapezoid){
     trapezoids.push_back(trapezoid);
 }
 
-std::vector<Trapezoid> TrapezoidalMap::getTrapezoids(){
+const std::vector<Trapezoid> &TrapezoidalMap::getTrapezoids() const{
     return trapezoids;
 }
 
-Trapezoid TrapezoidalMap::getTrapezoid(size_t index){
+const Trapezoid &TrapezoidalMap::getTrapezoid(size_t index) const{
     return trapezoids[index];
 }

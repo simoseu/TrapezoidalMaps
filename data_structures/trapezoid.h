@@ -14,10 +14,10 @@ class Trapezoid{
 public:
     Trapezoid(cg3::Segment2d topSegment, cg3::Segment2d bottomSegment, cg3::Point2d leftPoint, cg3::Point2d rightPoint);
 
-    cg3::Segment2d getTopSegment();
-    cg3::Segment2d getBottomSegment();
-    cg3::Point2d getLeftPoint();
-    cg3::Point2d getRightPoint();
+    const cg3::Segment2d &getTopSegment() const;
+    const cg3::Segment2d &getBottomSegment() const;
+    const cg3::Point2d &getLeftPoint() const;
+    const cg3::Point2d &getRightPoint() const;
     size_t getUpperLeftNeighbor();
     size_t getLowerLeftNeighbor();
     size_t getUpperRightNeighbor();

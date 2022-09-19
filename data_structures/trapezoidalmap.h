@@ -12,9 +12,9 @@ class TrapezoidalMap{
 
 public:
     TrapezoidalMap();
-    void addTrapezoid(Trapezoid trapezoid);
-    std::vector<Trapezoid> getTrapezoids();
-    Trapezoid getTrapezoid(size_t index);
+    void addTrapezoid(Trapezoid &trapezoid);
+    const std::vector<Trapezoid> &getTrapezoids() const;
+    const Trapezoid &getTrapezoid(size_t idx) const;
 
 private:
     std::vector<Trapezoid> trapezoids; // Vector of all trapezoids

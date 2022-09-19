@@ -2,7 +2,7 @@
 #define DAG_H
 
 #include "node.h"
-
+#include <cstddef>
 #include <vector>
 
 /**
@@ -13,8 +13,11 @@ class Dag{
 
 public:
 
-    void addNode(Node node);
-    std::vector<Node> getNodes();
+    void addNode(Node &node);
+    const std::vector<Node> &getNodes() const;
+    const Node &getNode(size_t idx) const;
+
+    const Node &getRoot() const;
 
 private:
     std::vector<Node> nodes;

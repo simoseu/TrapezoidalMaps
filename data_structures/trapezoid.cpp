@@ -7,19 +7,19 @@ Trapezoid::Trapezoid(cg3::Segment2d topSegment, cg3::Segment2d bottomSegment, cg
     this->rightPoint = rightPoint;
 }
 
-cg3::Segment2d Trapezoid::getTopSegment(){
+const cg3::Segment2d &Trapezoid::getTopSegment() const{
     return topSegment;
 }
 
-cg3::Segment2d Trapezoid::getBottomSegment(){
+const cg3::Segment2d &Trapezoid::getBottomSegment() const{
     return bottomSegment;
 }
 
-cg3::Point2d Trapezoid::getLeftPoint(){
+const cg3::Point2d &Trapezoid::getLeftPoint() const{
     return leftPoint;
 }
 
-cg3::Point2d Trapezoid::getRightPoint(){
+const cg3::Point2d &Trapezoid::getRightPoint() const{
     return rightPoint;
 }
 
