@@ -25,6 +25,6 @@ public:
 private:
     cg3::Color color;
 
-}
+};
 
 #endif // DRAWABLE_TRAPEZOID_H

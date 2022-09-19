@@ -2,6 +2,7 @@
 #define ALGORITHMS_H
 
 #include <cg3/geometry/segment2.h>
+#include "data_structures/trapezoidalmap_dataset.h"
 #include "data_structures/trapezoidalmap.h"
 #include "data_structures/dag.h"
 
@@ -12,7 +13,7 @@ namespace algorithms{
     void buildTrapezoidalMap();
     std::vector<Trapezoid> followSegment();
 
-    size_t queryPoint(cg3::Point2d &q, Dag &dag, TrapezoidalMap &trapezoidalMap);
+    size_t queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &trapezoidalMapData);
 }
 
 #endif // ALGORITHMS_H
