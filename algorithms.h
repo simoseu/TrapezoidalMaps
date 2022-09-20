@@ -13,7 +13,7 @@ namespace algorithms{
     void buildTrapezoidalMap();
     std::vector<Trapezoid> followSegment();
 
-    size_t queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &trapezoidalMapData);
+    Trapezoid queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &trapezoidalMapData);
 }
 
 #endif // ALGORITHMS_H

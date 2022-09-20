@@ -11,6 +11,10 @@
 
 #include "utils/fileutils.h"
 
+//TEST
+#include <cg3/geometry/utils2.h>
+
+
 //Limits for the bounding box
 //It defines where points can be added
 //Do not change the following line
@@ -224,7 +228,9 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
         std::cout << "P1: " << segments[i].p1().x() << ", " << segments[i].p1().y() << std::endl;
         std::cout << "P2: " << segments[i].p2().x() << ", " << segments[i].p2().y() << std::endl;
     }
-
+    const cg3::Segment2d &seg = segments[0];
+    std::cout << "Above: " << cg3::isPointAtLeft(seg, queryPoint) << std::endl;
+    std::cout << "Below: " << cg3::isPointAtRight(seg, queryPoint) << std::endl;
     //---------------------------------------------------------------------
     //Execute the point location algorithm of your TrapezoidalMap to locate in which trapezoid
     //the point is contained.
