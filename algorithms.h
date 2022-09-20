@@ -11,9 +11,9 @@
  */
 namespace algorithms{
     void buildTrapezoidalMap();
-    std::vector<Trapezoid> followSegment();
+    std::vector<size_t> followSegment(const cg3::Segment2d &segment, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &trapezoidalMapData);
 
-    Trapezoid queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &trapezoidalMapData);
+    size_t queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMapDataset &trapezoidalMapData);
 }
 
 #endif // ALGORITHMS_H
