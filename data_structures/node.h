@@ -20,7 +20,7 @@ public:
      */
     enum NodeType {X, Y, LEAF};
 
-    Node();
+    Node(NodeType type, size_t nodeIdx, size_t leftIdx, size_t rightIdx);
 
     NodeType getType() const;
     size_t getIdx() const;

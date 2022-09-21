@@ -1,6 +1,8 @@
 #include "node.h"
 
-Node::Node(){
+Node::Node(NodeType type, size_t nodeIdx, size_t leftIdx, size_t rightIdx) :
+            type(type), nodeIdx(nodeIdx), leftIdx(leftIdx), rightIdx(rightIdx)
+{
 
 }
 

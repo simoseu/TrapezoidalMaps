@@ -1,6 +1,11 @@
 #include "algorithms.h"
 #include <cg3/geometry/utils2.h> // To use the isPoitAtLeft() utility
 
+//Limits for the bounding box
+//It defines where points can be added
+//Do not change the following line
+#define BOUNDINGBOX 1e+6
+
 /**
  * @brief Locate in which trapezoid lies the given point q
  * @param[in] q Query point
@@ -8,7 +13,7 @@
  * @param[in] TrapezoidalMapData The trapezoidal map dataset data structure
  * @return The index of the trapezoid in which lies the query point
  */
-size_t queryPoint(const cg3::Point2d q, const Dag dag, const TrapezoidalMapDataset trapezoidalMapData){
+size_t queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMapDataset &trapezoidalMapData){
 
     // Getting the root of the dag
     Node node = dag.getRoot();
@@ -48,7 +53,7 @@ size_t queryPoint(const cg3::Point2d q, const Dag dag, const TrapezoidalMapDatas
  * @param[in] trapezoidalMapData The trapezoidal map dataset data structure
  * @return A vector containing the index of all the trapezoids intersected by the given segment
  */
-std::vector<size_t> followSegment(const cg3::Segment2d segment, const Dag dag, const TrapezoidalMap trapezoidalMap, const TrapezoidalMapDataset trapezoidalMapData){
+std::vector<size_t> followSegment(const cg3::Segment2d &segment, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &trapezoidalMapData){
     // Ordering the segment for ensuring that the second point (p2) is the right endpoint of the segment
     cg3::Segment2d orderedSegment = segment;
     if (segment.p1().x() > segment.p2().x()) {
@@ -79,4 +84,36 @@ std::vector<size_t> followSegment(const cg3::Segment2d segment, const Dag dag, c
     }
 
     return intersectedTrapezoids;
+}
+
+/**
+ * @brief Initialize the data structures Trapezoidal Map and DAG
+ * @param[in] dag The DAG search structure
+ * @param[in] trapezoidalMap The trapezoidal Map data structure
+ *
+ */
+void initializeStructures(Dag &dag, TrapezoidalMap &trapezoidalMap){
+    // The trapezoidal map for the empty set consist of a single trapezoid, which is the bounding rectangle.
+    cg3::Segment2d topSegment = cg3::Segment2d(cg3::Point2d(-BOUNDINGBOX, BOUNDINGBOX), cg3::Point2d(BOUNDINGBOX, BOUNDINGBOX));
+    cg3::Segment2d bottomSegment = cg3::Segment2d(cg3::Point2d(-BOUNDINGBOX, -BOUNDINGBOX), cg3::Point2d(BOUNDINGBOX, -BOUNDINGBOX));
+    cg3::Point2d leftPoint = cg3::Point2d(-BOUNDINGBOX, BOUNDINGBOX);
+    cg3::Point2d rightPoint = cg3::Point2d(BOUNDINGBOX, BOUNDINGBOX);
+
+    // Since the bounding trapezoid has no neighbour, use the max value of size_t as arbitrary index for a null index
+    size_t nullIdx = std::numeric_limits<size_t>::max();
+    // Setting the node index to 0 since it will be the first node added at the dag
+    Trapezoid boundingBoxTrapezoid = Trapezoid(topSegment, bottomSegment, leftPoint, rightPoint, nullIdx, nullIdx, nullIdx, nullIdx, 0);
+    trapezoidalMap.addTrapezoid(boundingBoxTrapezoid);
+
+    // The DAG consist of a single leaf node representing the bounding rectangle
+    // Setting the node index to 0 since the trapezoid inserted is the first of the vector
+    Node boundingBoxNode = Node(Node::LEAF, 0, nullIdx, nullIdx);
+    dag.addNode(boundingBoxNode);
+}
+
+void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &TrapezoidalMapData){
+    // Before adding a segment is necessary to: Determine a bounding box R that contains all segments of S, and initialize the trapezoidal map structure T and search structure D for it.
+
+
+
 }
