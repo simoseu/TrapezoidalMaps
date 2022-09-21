@@ -23,19 +23,19 @@ const cg3::Point2d &Trapezoid::getRightPoint() const{
     return rightPoint;
 }
 
-size_t Trapezoid::getUpperLeftNeighbor(){
+size_t Trapezoid::getUpperLeftNeighbor() const{
     return upperLeftNeighbor;
 }
 
-size_t Trapezoid::getLowerLeftNeighbor(){
+size_t Trapezoid::getLowerLeftNeighbor() const{
     return lowerLeftNeighbor;
 }
 
-size_t Trapezoid::getUpperRightNeighbor(){
+size_t Trapezoid::getUpperRightNeighbor() const{
     return upperRightNeighbor;
 }
 
-size_t Trapezoid::getLowerRightNeighbor(){
+size_t Trapezoid::getLowerRightNeighbor() const{
     return lowerRightNeighbor;
 }
 

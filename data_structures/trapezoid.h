@@ -18,10 +18,10 @@ public:
     const cg3::Segment2d &getBottomSegment() const;
     const cg3::Point2d &getLeftPoint() const;
     const cg3::Point2d &getRightPoint() const;
-    size_t getUpperLeftNeighbor();
-    size_t getLowerLeftNeighbor();
-    size_t getUpperRightNeighbor();
-    size_t getLowerRightNeighbor();
+    size_t getUpperLeftNeighbor() const;
+    size_t getLowerLeftNeighbor() const;
+    size_t getUpperRightNeighbor() const;
+    size_t getLowerRightNeighbor() const;
 
 private:
     //Node *node; Link to node of dag

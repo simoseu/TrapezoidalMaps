@@ -40,6 +40,14 @@ size_t queryPoint(const cg3::Point2d q, const Dag dag, const TrapezoidalMapDatas
     return node.getIdx();
 }
 
+/**
+ * @brief Find the trapezoids intersected by a given segment
+ * @param[in] segment The given segment
+ * @param[in] dag The DAG search structure
+ * @param[in] trapezoidalMap The trapezoidal Map data structure
+ * @param[in] trapezoidalMapData The trapezoidal map dataset data structure
+ * @return A vector containing the index of all the trapezoids intersected by the given segment
+ */
 std::vector<size_t> followSegment(const cg3::Segment2d segment, const Dag dag, const TrapezoidalMap trapezoidalMap, const TrapezoidalMapDataset trapezoidalMapData){
     // Ordering the segment for ensuring that the second point (p2) is the right endpoint of the segment
     cg3::Segment2d orderedSegment = segment;
@@ -48,15 +56,16 @@ std::vector<size_t> followSegment(const cg3::Segment2d segment, const Dag dag, c
         orderedSegment.setP2(segment.p1());
     }
     // Vector that will contain all trapezoids intersected by the segment
-    std::vector<size_t> intersectedTrapezoidsIdx;
+    std::vector<size_t> intersectedTrapezoids;
 
     // Need to search the left endpoint of s in the DAG to find the trapezoid zero
-    size_t idxTrapezoid = queryPoint(orderedSegment.p1(), dag, trapezoidalMapDataset);
+    size_t idxTrapezoid = queryPoint(orderedSegment.p1(), dag, trapezoidalMapData);
     // Adding the trapezoid in the vector
-    intersectedTrapezoidsIdx.push_back(idxTrapezoid);
+    intersectedTrapezoids.push_back(idxTrapezoid);
 
+    cg3::Point2d rightPoint = trapezoidalMap.getTrapezoid(idxTrapezoid).getRightPoint();
     // Check if p2 lies to the right of the right endpoint of the trapezoid
-    while(segment.p2().x() > trapezoidalMap.getTrapezoid(idxTrapezoid).getRightPoint().x()){
+    while(segment.p2().x() > rightPoint.x()){
         // If the right point of the trapezoid lies above the segment put the lower right neighbor in the intersected trapezoids vector and go on with it
         if(cg3::isPointAtLeft(segment, rightPoint)){
             idxTrapezoid = trapezoidalMap.getTrapezoid(idxTrapezoid).getLowerRightNeighbor();
@@ -64,6 +73,10 @@ std::vector<size_t> followSegment(const cg3::Segment2d segment, const Dag dag, c
             idxTrapezoid = trapezoidalMap.getTrapezoid(idxTrapezoid).getUpperRightNeighbor();
         }
         // Add the trapezoid to the vector
-        intersectedTrapezoidsIdx.push_back(idxTrapezoid);
+        intersectedTrapezoids.push_back(idxTrapezoid);
+        // Setting the rightPoint of the new trapezoid
+        rightPoint = trapezoidalMap.getTrapezoid(idxTrapezoid).getRightPoint();
     }
+
+    return intersectedTrapezoids;
 }

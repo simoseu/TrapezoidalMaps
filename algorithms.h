@@ -10,7 +10,7 @@
  * @brief Algorithms
  */
 namespace algorithms{
-    void buildTrapezoidalMap();
+    void buildTrapezoidalMap(const cg3::Segment2d &segment, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &TrapezoidalMapData);
     std::vector<size_t> followSegment(const cg3::Segment2d &segment, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &trapezoidalMapData);
 
     size_t queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMapDataset &trapezoidalMapData);
