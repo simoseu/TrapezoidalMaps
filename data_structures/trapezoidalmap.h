@@ -16,6 +16,9 @@ public:
     const std::vector<Trapezoid> &getTrapezoids() const;
     const Trapezoid &getTrapezoid(size_t idx) const;
 
+    // Necessary for replacing old trapezoids when a new segment is added
+    void replaceTrapezoid(Trapezoid &trapezoid, size_t idx);
+
 private:
     std::vector<Trapezoid> trapezoids; // Vector of all trapezoids
 

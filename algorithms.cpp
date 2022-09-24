@@ -54,17 +54,12 @@ size_t queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMapDat
  * @return A vector containing the index of all the trapezoids intersected by the given segment
  */
 std::vector<size_t> followSegment(const cg3::Segment2d &segment, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &trapezoidalMapData){
-    // Ordering the segment for ensuring that the second point (p2) is the right endpoint of the segment
-    cg3::Segment2d orderedSegment = segment;
-    if (segment.p1().x() > segment.p2().x()) {
-        orderedSegment.setP1(segment.p2());
-        orderedSegment.setP2(segment.p1());
-    }
+
     // Vector that will contain all trapezoids intersected by the segment
     std::vector<size_t> intersectedTrapezoids;
 
     // Need to search the left endpoint of s in the DAG to find the trapezoid zero
-    size_t idxTrapezoid = queryPoint(orderedSegment.p1(), dag, trapezoidalMapData);
+    size_t idxTrapezoid = queryPoint(segment.p1(), dag, trapezoidalMapData);
     // Adding the trapezoid in the vector
     intersectedTrapezoids.push_back(idxTrapezoid);
 
@@ -114,6 +109,37 @@ void initializeStructures(Dag &dag, TrapezoidalMap &trapezoidalMap){
 void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &TrapezoidalMapData){
     // Before adding a segment is necessary to: Determine a bounding box R that contains all segments of S, and initialize the trapezoidal map structure T and search structure D for it.
 
+    // Ordering the segment for ensuring that the second point (p2) is the right endpoint of the segment
+    cg3::Segment2d orderedSegment = segment;
+    if (segment.p1().x() > segment.p2().x()) {
+        orderedSegment.setP1(segment.p2());
+        orderedSegment.setP2(segment.p1());
+    }
 
+    // Get the intersected trapezoids with the function followSegment
+    std::vector<size_t> intersectedTrapezoids = followSegment(orderedSegment, dag, trapezoidalMap, TrapezoidalMapData);
+
+    // Split in two case to handle - the segment intersect only one trapezoid and the segment intersect more trapezoid
+    // Only one trapezoid intersected
+    if(intersectedTrapezoids.size() == 1){
+        // In this case the trapezoid will be replaced with at leat 3 trapezoid and at most 4 trapezoid. Is possible that there is no left or right trapezoid
+        Trapezoid trapezoid = intersectedTrapezoids[0];
+        // Top trapezoid, need to add the adjacency later and the node Index
+        Trapezoid topTrapezoid = Trapezoid(trapezoid.getTopSegment(), orderedSegment, segment.p1(), segment.p2());
+        // Bottom trapezoid
+        Trapezoid bottomTrapezoid = Trapezoid(orderedSegment, trapezoid.getBottomSegment(), segment.p1(), segment.p2());
+
+        // Left trapezoid only if segment.p1 is not equal to the left point of the trapezoid
+        if(segment.p1() != trapezoid.getLeftPoint()){
+            Trapezoid leftTrapezoid = Trapezoid(trapezoid.getBottomSegment(), trapezoid.getBottomSegment(), trapezoid.getLeftPoint(), segment.p2());
+        }
+
+        // Right trapezoid only if segment.p2 is not equal to the right point of the trapezoid
+        if(segment.p2() != trapezoid.getRightPoint()){
+            Trapezoid rightTrapezoid = Trapezoid(trapezoid.getTopSegment(), trapezoid.getBottomSegment(), segment.p2(), trapezoid.getRightPoint());
+        }
+
+        // Adding neighbor
+    }
 
 }

@@ -15,3 +15,7 @@ const std::vector<Trapezoid> &TrapezoidalMap::getTrapezoids() const{
 const Trapezoid &TrapezoidalMap::getTrapezoid(size_t index) const{
     return trapezoids[index];
 }
+
+void TrapezoidalMap::replaceTrapezoid(Trapezoid &trapezoid, size_t idx){
+    trapezoids[idx] = trapezoid;
+}
