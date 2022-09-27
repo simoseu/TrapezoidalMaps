@@ -22,6 +22,10 @@ namespace algorithms{
 
     bool leftPointEqualRightEndpoint(Trapezoid trapezoid);
 
+    bool leftPointEqualBottomLeftEndpoint(Trapezoid trapezoid);
+
+    bool rightPointEqualBottomRightEndpoint(Trapezoid trapezoid);
+
 }
 
 #endif // ALGORITHMS_H

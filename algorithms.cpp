@@ -17,16 +17,28 @@ void orderSegment(cg3::Segment2d &segment){
 }
 
 // Return true if the left point of a trapezoid is equal to the left endpoint of its top segment
-bool leftPointEqualLeftEndpoint(Trapezoid trapezoid){
+bool leftPointEqualTopLeftEndpoint(Trapezoid trapezoid){
     cg3::Segment2d topSegment = trapezoid.getTopSegment();
     orderSegment(topSegment);
     return trapezoid.getLeftPoint() == topSegment.p1();
 }
 
-bool rightPointEqualRightEndpoint(Trapezoid trapezoid){
+bool rightPointEqualTopRightEndpoint(Trapezoid trapezoid){
     cg3::Segment2d topSegment = trapezoid.getTopSegment();
     orderSegment(topSegment);
     return trapezoid.getRightPoint() == topSegment.p2();
+}
+
+bool leftPointEqualBottomLeftEndpoint(Trapezoid trapezoid){
+    cg3::Segment2d bottomSegment = trapezoid.getBottomSegment();
+    orderSegment(bottomSegment);
+    return trapezoid.getLeftPoint() == bottomSegment.p1();
+}
+
+bool rightPointEqualBottomRightEndpoint(Trapezoid trapezoid){
+    cg3::Segment2d bottomSegment = trapezoid.getBottomSegment();
+    orderSegment(bottomSegment);
+    return trapezoid.getRightPoint() == bottomSegment.p2();
 }
 
 
@@ -146,27 +158,31 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
     // Split in two case to handle - the segment intersect only one trapezoid and the segment intersect more trapezoid
     // Only one trapezoid intersected
     if(intersectedTrapezoids.size() == 1){
+        // In this case the trapezoid will be replaced with at most 4 trapezoid. Is possible that there is no left or right trapezoid
+
         // Nuovi IDX
         size_t newIdx = trapezoidalMap.getTrapezoids().size();
 
-        // In this case the trapezoid will be replaced with at most 4 trapezoid. Is possible that there is no left or right trapezoid
-        size_t intersectedT = intersectedTrapezoids[0];
+        size_t intersectedTrapIdx = intersectedTrapezoids[0];
+
+        Trapezoid intersectedTrap = trapezoidalMap.getTrapezoid(intersectedTrapIdx);
+
 
         // Top trapezoid, need to add the adjacency later and the node Index
 
-        size_t topTrapezoidIDX = intersectedT;  // Taking the idx of the intersected trapezoid
+        size_t topTrapezoidIDX = intersectedTrapIdx;  // Taking the idx of the intersected trapezoid
 
-        Trapezoid topTrapezoid = Trapezoid(trapezoidalMap.getTrapezoid(intersectedT).getTopSegment(), orderedSegment, segment.p1(), segment.p2());
+        Trapezoid topTrapezoid = Trapezoid(intersectedTrap.getTopSegment(), orderedSegment, segment.p1(), segment.p2());
 
         // Bottom trapezoid
 
         size_t bottomTrapezoidIDX = newIdx;  // Taking the idx next to the last trapezoid in the vector
 
-        Trapezoid bottomTrapezoid = Trapezoid(orderedSegment, trapezoidalMap.getTrapezoid(intersectedT).getBottomSegment(), segment.p1(), segment.p2());
+        Trapezoid bottomTrapezoid = Trapezoid(orderedSegment, intersectedTrap.getBottomSegment(), segment.p1(), segment.p2());
 
         // Left trapezoid only if segment.p1 is not equal to the left point of the trapezoid
 
-        bool leftTrapezoidExist = segment.p1() != trapezoidalMap.getTrapezoid(intersectedT).getLeftPoint();
+        bool leftTrapezoidExist = segment.p1() != intersectedTrap.getLeftPoint();
 
         size_t leftTrapezoidIDX = std::numeric_limits<size_t>::max();
 
@@ -174,12 +190,12 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
 
             leftTrapezoidIDX = newIdx++; // Taking the next id of the bottomTrapezoid
 
-            Trapezoid leftTrapezoid = Trapezoid(trapezoidalMap.getTrapezoid(intersectedT).getBottomSegment(), trapezoidalMap.getTrapezoid(intersectedT).getBottomSegment(),
-                                                trapezoidalMap.getTrapezoid(intersectedT).getLeftPoint(), segment.p2());
+            Trapezoid leftTrapezoid = Trapezoid(intersectedTrap.getBottomSegment(), intersectedTrap.getBottomSegment(),
+                                                intersectedTrap.getLeftPoint(), segment.p2());
         }
 
         // Right trapezoid only if segment.p2 is not equal to the right point of the trapezoid
-        bool rightTrapezoidExist = segment.p2() != trapezoidalMap.getTrapezoid(intersectedT).getRightPoint();
+        bool rightTrapezoidExist = segment.p2() != intersectedTrap.getRightPoint();
 
         size_t rightTrapezoidIDX = std::numeric_limits<size_t>::max();
 
@@ -187,35 +203,66 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
 
             rightTrapezoidIDX = newIdx++; // Taking the next id of the bottomTrapezoid or leftTrapezoid if exist
 
-            Trapezoid rightTrapezoid = Trapezoid(trapezoidalMap.getTrapezoid(intersectedT).getTopSegment(), trapezoidalMap.getTrapezoid(intersectedT).getBottomSegment(),
-                                                 segment.p2(), trapezoidalMap.getTrapezoid(intersectedT).getRightPoint());
+            Trapezoid rightTrapezoid = Trapezoid(intersectedTrap.getTopSegment(), intersectedTrap.getBottomSegment(),
+                                                 segment.p2(), intersectedTrap.getRightPoint());
         }
 
         // Adding neighbor to every trapezoid
-        // TOP Trap
+
+        // TOP TRAPEZOID
 
         // if leftTrapezoid exist it will be the upperleft neighbor, else the left point of the intersected trapezoid is equal to its top segment left endpoint then it has no neighbor,
         // else the neighbor is the upperLeft neighbor of the intersected trapezoid
-        if(leftTrapezoidExist) topTrapezoid.setUpperLeftNeighbor(leftTrapezoidIDX); //ID del trapezoid non il trapezoid
-        else if (!leftPointEqualLeftEndpoint(trapezoidalMap.getTrapezoid(intersectedT))) topTrapezoid.setUpperLeftNeighbor(trapezoidalMap.getTrapezoid(intersectedT).getUpperLeftNeighbor());
+        if(leftTrapezoidExist) topTrapezoid.setUpperLeftNeighbor(leftTrapezoidIDX);
+        else if (!leftPointEqualTopLeftEndpoint(intersectedTrap)) topTrapezoid.setUpperLeftNeighbor(intersectedTrap.getUpperLeftNeighbor());
         else topTrapezoid.setUpperLeftNeighbor(std::numeric_limits<size_t>::max());
 
-
+        // - top right neighbor
         if(rightTrapezoidExist) topTrapezoid.setUpperRightNeigbor(rightTrapezoidIDX);
-        else if (!rightPointEqualRightEndpoint(trapezoidalMap.getTrapezoid(intersectedT))) topTrapezoid.setUpperRightNeigbor(trapezoidalMap.getTrapezoid(intersectedT).getUpperRightNeighbor());
+        else if (!rightPointEqualTopRightEndpoint(intersectedTrap)) topTrapezoid.setUpperRightNeigbor(intersectedTrap.getUpperRightNeighbor());
         else topTrapezoid.setUpperRightNeigbor(std::numeric_limits<size_t>::max());
 
-        // No lower Neighbor
+        // - No lower Neighbor
         topTrapezoid.setLowerLeftNeighbor(std::numeric_limits<size_t>::max());
         topTrapezoid.setLowerRightNeighbor(std::numeric_limits<size_t>::max());
 
-        // Bottom Trap
+        trapezoidalMap.replaceTrapezoid(topTrapezoid, intersectedTrapIdx);
 
-        // No upper Neighbor
+        // BOTTOM TRAPEZOID
+
+        // - No upper Neighbor
         bottomTrapezoid.setUpperLeftNeighbor(std::numeric_limits<size_t>::max());
         bottomTrapezoid.setUpperRightNeigbor(std::numeric_limits<size_t>::max());
 
-        // Need to do as above for the bottom segment
+        // - lower left neighbor
+        if(leftTrapezoidExist) bottomTrapezoid.setLowerLeftNeighbor(leftTrapezoidIDX);
+        else if(!leftPointEqualBottomLeftEndpoint(intersectedTrap)) bottomTrapezoid.setLowerLeftNeighbor(intersectedTrap.getLowerLeftNeighbor());
+        else bottomTrapezoid.setLowerLeftNeighbor(std::numeric_limits<size_t>::max());
+
+        // - lower right neighbor
+        if(rightTrapezoidExist) bottomTrapezoid.setLowerRightNeighbor(rightTrapezoidIDX);
+        else if(!rightPointEqualBottomRightEndpoint(intersectedTrap)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrap.getLowerRightNeighbor());
+        else bottomTrapezoid.setLowerRightNeighbor(std::numeric_limits<size_t>::max());
+
+        trapezoidalMap.addTrapezoid(bottomTrapezoid);
+
+        // LEFT TRAPEZOID if exist
+        if(leftTrapezoidExist){
+            leftTrapezoid.setUpperLeftNeighbor(intersectedTrap.getUpperLeftNeighbor());
+            leftTrapezoid.setUpperRightNeigbor(topTrapezoidIDX);
+            leftTrapezoid.setLowerLeftNeighbor(intersectedTrap.getLowerLeftNeighbor());
+            leftTrapezoid.setLowerRightNeighbor(bottomTrapezoidIDX);
+            trapezoidalMap.addTrapezoid(leftTrapezoid);
+        }
+
+        // RIGHT TRAPEZOID if exist
+        if(rightTrapezoidExist){
+            rightTrapezoid.setUpperLeftNeighbor(topTrapezoidIDX);
+            rightTrapezoid.setUpperRightNeigbor(intersectedTrap.getUpperRightNeighbor());
+            rightTrapezoid.setLowerLeftNeighbor(bottomTrapezoidIDX);
+            rightTrapezoid.setLowerRightNeighbor(intersectedTrap.getLowerRightNeighbor());
+            trapezoidalMap.addTrapezoid(rightTrapezoid);
+        }
     }
 
 }
