@@ -27,6 +27,8 @@ public:
     size_t getLeftIdx() const;
     size_t getRightIdx() const;
 
+    char printType() const;
+
 private:
     NodeType type;
     size_t nodeIdx;

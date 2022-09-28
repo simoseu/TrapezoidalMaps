@@ -11,7 +11,7 @@
 
 #include "utils/fileutils.h"
 
-//TEST (DA RIMUOVERE)
+// !!!!!TEST (DA RIMUOVERE)
 #include <cg3/geometry/utils2.h>
 
 #include "algorithms.h"
@@ -203,17 +203,33 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //it more efficient in memory. However, depending on how you implement your algorithms and data 
     //structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
 
-    for(Trapezoid t : trapezoidalMap.getTrapezoids()) {
-        std::cout << t.getNodeIdx() << std::endl;
-        std::cout << dag.getNode(t.getNodeIdx()).getType();
+    std::vector<Trapezoid> t = trapezoidalMap.getTrapezoids();
+
+    for(size_t i=0; i < t.size(); i++){
+        std::cout << "Trap #" << i << " " << t[i].getNodeIdx() << std::endl;
+
+    }
+    std::vector<Node> n = dag.getNodes();
+
+    for(size_t i=0; i < n.size(); i++){
+        std::cout << "Node #" << i << " " <<n[i].getIdx() << " Tipo: " << n[i].printType() << std::endl;
     }
 
     algorithms::buildTrapezoidalMap(segment, dag, trapezoidalMap, drawableTrapezoidalMapDataset);
 
-    for(Trapezoid t : trapezoidalMap.getTrapezoids()) {
-        std::cout << t.getNodeIdx() << std::endl;
-        //std::cout << dag.getNode(t.getNodeIdx()).getType();
+    t = trapezoidalMap.getTrapezoids();
+    n = dag.getNodes();
+
+    for(size_t i=0; i < t.size(); i++){
+        std::cout << "Trap #" << i << " " << t[i].getNodeIdx() << std::endl;
     }
+
+    for(size_t i=0; i < n.size(); i++){
+        std::cout << "Leaf #" << i << " " <<n[i].getIdx() << " Tipo: " << n[i].printType() << std::endl;
+    }
+
+    // Devo aggiornare l'id nel trapezoid
+    //std::cout << dag.getNode(t.getNodeIdx()).getType();
 
 
     //#####################################################################
@@ -231,15 +247,6 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
  */
 void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 {
-    size_t prova = 1;
-
-    std::cout << "Iniziale: " << prova << std::endl;
-    std::cout << "Con ++ prima: " << ++prova << std::endl;
-    std::cout << "Attuale: " << prova << std::endl;
-    std::cout << "Con ++ dopo" << prova++ << std::endl;
-    std::cout << "Attuale: " << prova << std::endl;
-
-
     /* TEST VARI
     std::vector<cg3::Segment2d> segments = drawableTrapezoidalMapDataset.getSegments();
     std::vector<cg3::Point2d> points = drawableTrapezoidalMapDataset.getPoints();

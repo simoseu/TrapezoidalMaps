@@ -21,3 +21,10 @@ size_t Node::getLeftIdx() const{
 size_t Node::getRightIdx() const{
     return rightIdx;
 }
+
+
+char Node::printType() const{
+    if(type == Node::X) return 'x';
+    else if(type == Node::Y) return 'y';
+    else return 'l';
+}
