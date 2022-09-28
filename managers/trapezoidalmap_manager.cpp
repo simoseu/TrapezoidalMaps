@@ -216,7 +216,16 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
  */
 void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 {
+    size_t prova = 1;
 
+    std::cout << "Iniziale: " << prova << std::endl;
+    std::cout << "Con ++ prima: " << ++prova << std::endl;
+    std::cout << "Attuale: " << prova << std::endl;
+    std::cout << "Con ++ dopo" << prova++ << std::endl;
+    std::cout << "Attuale: " << prova << std::endl;
+
+
+    /* TEST VARI
     std::vector<cg3::Segment2d> segments = drawableTrapezoidalMapDataset.getSegments();
     std::vector<cg3::Point2d> points = drawableTrapezoidalMapDataset.getPoints();
     std::cout << "Ciao" << std::endl;
@@ -231,6 +240,8 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
     const cg3::Segment2d &seg = segments[0];
     std::cout << "Above: " << cg3::isPointAtLeft(seg, queryPoint) << std::endl;
     std::cout << "Below: " << cg3::isPointAtRight(seg, queryPoint) << std::endl;
+    */
+
     //---------------------------------------------------------------------
     //Execute the point location algorithm of your TrapezoidalMap to locate in which trapezoid
     //the point is contained.

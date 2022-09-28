@@ -177,14 +177,14 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
         // left trapezoid exist only if segment.p1 is not equal to the left point of the trapezoid
         bool leftTrapezoidExist = segment.p1() != intersectedTrap.getLeftPoint();
         if(leftTrapezoidExist){
-            leftTrapezoidIDX = newIdx++; // Taking the next id of the bottomTrapezoid
+            leftTrapezoidIDX = ++newIdx; // Taking the next id of the bottomTrapezoid
         }
 
         // right trapezoid exist only if segment.p2 is not equal to the right point of the trapezoid
         bool rightTrapezoidExist = segment.p2() != intersectedTrap.getRightPoint();
 
         if(rightTrapezoidExist){
-            rightTrapezoidIDX = newIdx++; // Taking the next id of the bottomTrapezoid or leftTrapezoid if exist
+            rightTrapezoidIDX = ++newIdx; // Taking the next id of the bottomTrapezoid or leftTrapezoid if exist
         }
 
         // TOP TRAPEZOID
@@ -248,6 +248,49 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
             rightTrapezoid.setLowerRightNeighbor(intersectedTrap.getLowerRightNeighbor());
             trapezoidalMap.addTrapezoid(rightTrapezoid);
         }
+
+
+        // UPDATE THE DAG
+        /* Need to replace the leaf of the intersected trapezoid with a tree:
+         *      - 1 x-node with the left endpoint of the inserted segment (if is to the left than the trapezoid is leftTrapezoid, if is to the right than test the other x-node)
+         *      - 1 x-node with the right endpoint of the inserted segment (if is to the left than test the y-node, if is to the right is the rightTrapezoid)
+         *      - 1 y-node with the intersected segment (if is above is the topTrap, if is below is the bottomTrap)
+         *      - At most 4 leaf representing the new trapezoids
+        */
+        // Setting indexes of the dag nodes
+        // Since we need to replace node that represent the trapezoid
+        size_t newNodeIdx = intersectedTrap.getNodeIdx(); // after we need to take the index next to the last node in the vector!!!
+
+        size_t xLeftNode = std::numeric_limits<size_t>::max(); // the first x-node only if left trapezoid exist
+        size_t leftTrapLeaf = std::numeric_limits<size_t>::max(); // Also the leaf representing the left trapezoid
+        if(leftTrapezoidExist){
+            xLeftNode = newNodeIdx;
+            newNodeIdx = dag.getNodes().size(); // Taking the index next to the last node in the vector
+            leftTrapLeaf = newNodeIdx++;
+        }
+
+
+        size_t xRightNode = std::numeric_limits<size_t>::max();
+        size_t rightTrapLeaf = std::numeric_limits<size_t>::max();
+        // The second x-node only if the right trapezoid exist
+        if(rightTrapezoidExist){
+            if(leftTrapezoidExist){
+                xRightNode = newNodeIdx;
+                newNodeIdx = dag.getNodes().size();
+                rightTrapLeaf = newNodeIdx++;
+            }else{
+                xRightNode = newNodeIdx++;
+                rightTrapLeaf = newNodeIdx++;
+            }
+        }
+
+        size_t yNode = leftTrapezoidExist || rightTrapezoidExist ? newNodeIdx++ : newNodeIdx;
+
+        // If left and righ trap not exist need to take the index next to the last node in the vector
+        if( !(leftTrapezoidExist || rightTrapezoidExist) ) newNodeIdx = dag.getNodes().size();
+
+        size_t topTrapLeaf = newNodeIdx++;
+        size_t bottomTrapLeaf = newNodeIdx;
 
     }
 
