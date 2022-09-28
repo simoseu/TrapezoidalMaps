@@ -11,9 +11,10 @@
 
 #include "utils/fileutils.h"
 
-//TEST
+//TEST (DA RIMUOVERE)
 #include <cg3/geometry/utils2.h>
 
+#include "algorithms.h"
 
 //Limits for the bounding box
 //It defines where points can be added
@@ -42,6 +43,10 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     firstPointSelectedSize(5),
     isFirstPointSelected(false)
 {
+
+    // Initialize the trapezoidalMap and the dag
+    algorithms::initializeStructures(dag, trapezoidalMap);
+
     //NOTE 1: you probably need to initialize some objects in the constructor. You
     //can see how to initialize an attribute in the lines above. This is C++ style
     //attribute initialization (it is different to write an assignment operator in
@@ -198,7 +203,17 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //it more efficient in memory. However, depending on how you implement your algorithms and data 
     //structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
 
+    for(Trapezoid t : trapezoidalMap.getTrapezoids()) {
+        std::cout << t.getNodeIdx() << std::endl;
+        std::cout << dag.getNode(t.getNodeIdx()).getType();
+    }
 
+    algorithms::buildTrapezoidalMap(segment, dag, trapezoidalMap, drawableTrapezoidalMapDataset);
+
+    for(Trapezoid t : trapezoidalMap.getTrapezoids()) {
+        std::cout << t.getNodeIdx() << std::endl;
+        //std::cout << dag.getNode(t.getNodeIdx()).getType();
+    }
 
 
     //#####################################################################

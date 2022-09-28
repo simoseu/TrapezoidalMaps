@@ -6,7 +6,7 @@
 //Do not change the following line
 #define BOUNDINGBOX 1e+6
 
-
+namespace algorithms{
 // Order the points of a segment by x values
 void orderSegment(cg3::Segment2d &segment){
     if (segment.p1().x() > segment.p2().x()) {
@@ -142,7 +142,7 @@ void initializeStructures(Dag &dag, TrapezoidalMap &trapezoidalMap){
     dag.addNode(boundingBoxNode);
 }
 
-void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &TrapezoidalMapData){
+void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData){
     // Before adding a segment is necessary to: Determine a bounding box R that contains all segments of S, and initialize the trapezoidal map structure T and search structure D for it.
 
     // Ordering the segment for ensuring that the second point (p2) is the right endpoint of the segment
@@ -153,7 +153,8 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
     }
 
     // Get the intersected trapezoids with the function followSegment
-    std::vector<size_t> intersectedTrapezoids = followSegment(orderedSegment, dag, trapezoidalMap, TrapezoidalMapData);
+    std::vector<size_t> intersectedTrapezoids = followSegment(orderedSegment, dag, trapezoidalMap, trapezoidalMapData);
+    assert(intersectedTrapezoids.size() > 0);
 
     // Split in two case to handle - the segment intersect only one trapezoid and the segment intersect more trapezoid
     // Only one trapezoid intersected
@@ -292,6 +293,46 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
         size_t topTrapLeaf = newNodeIdx++;
         size_t bottomTrapLeaf = newNodeIdx;
 
+        // Create the substree of the dag
+
+        if(leftTrapezoidExist){
+            // nodo x
+            bool found = false;
+            size_t pointIdx = trapezoidalMapData.findPoint(segment.p1(), found);
+            Node newNode = Node(Node::NodeType::X, pointIdx, leftTrapLeaf, rightTrapezoidExist ? xRightNode : yNode);
+            dag.replaceNode(newNode, xLeftNode);
+            // left trap
+            newNode = Node(Node::NodeType::LEAF, leftTrapezoidIDX, std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max());
+            dag.addNode(newNode);
+        }
+
+        if(rightTrapezoidExist){
+            // node x
+            bool found = false;
+            size_t pointIdx = trapezoidalMapData.findPoint(segment.p2(), found);
+            Node newNode = Node(Node::NodeType::X, pointIdx, yNode, rightTrapLeaf);
+            if(leftTrapezoidExist) dag.addNode(newNode);
+            else dag.replaceNode(newNode, xRightNode);
+
+            //right trap
+            newNode = Node(Node::NodeType::LEAF, rightTrapezoidIDX, std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max());
+            dag.addNode(newNode);
+        }
+
+        // y-node
+        bool found = false;
+        size_t segmentIdx = trapezoidalMapData.findSegment(segment, found);
+        Node newNode = Node(Node::NodeType::Y, segmentIdx, topTrapLeaf, bottomTrapLeaf);
+        if(leftTrapezoidExist || rightTrapezoidExist) dag.addNode(newNode);
+        else dag.replaceNode(newNode, yNode);
+
+        // Leaf top trap
+        newNode = Node(Node::NodeType::LEAF, topTrapezoidIDX, std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max());
+        dag.addNode(newNode);
+        // Leaf bottom trap
+        newNode = Node(Node::NodeType::LEAF, bottomTrapezoidIDX, std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max());
+        dag.addNode(newNode);
     }
 
+}
 }

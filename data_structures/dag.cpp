@@ -4,6 +4,10 @@ void Dag::addNode(Node &node){
     nodes.push_back(node);
 }
 
+void Dag::replaceNode(Node &node, size_t idx){
+    nodes[idx] = node;
+}
+
 const std::vector<Node> &Dag::getNodes() const{
     return nodes;
 }

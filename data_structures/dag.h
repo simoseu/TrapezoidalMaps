@@ -14,6 +14,7 @@ class Dag{
 public:
 
     void addNode(Node &node);
+    void replaceNode(Node &node, size_t idx);
     const std::vector<Node> &getNodes() const;
     const Node &getNode(size_t idx) const;
 

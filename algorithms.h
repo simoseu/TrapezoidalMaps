@@ -12,7 +12,7 @@
 namespace algorithms{
     void initializeStructures(Dag &dag, TrapezoidalMap &trapezoidalMap);
 
-    void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &TrapezoidalMapData);
+    void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData);
 
     std::vector<size_t> followSegment(const cg3::Segment2d &segment, const Dag &dag, const TrapezoidalMap &trapezoidalMap, const TrapezoidalMapDataset &trapezoidalMapData);
 
