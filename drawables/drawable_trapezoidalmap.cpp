@@ -13,6 +13,12 @@ const cg3::Color DrawableTrapezoidalMap::randomColor() const{
     int red = std::rand()%256;
     int green = std::rand()%256;
     int blue = std::rand()%256;
+
+
+    red = (red + 255) / 2;
+    green = (green + 255) / 2;
+    blue = (blue + 255) / 2;
+
     const cg3::Color c = cg3::Color(red, green, blue);
     return c;
 }

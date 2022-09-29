@@ -224,7 +224,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
 
     t = drawableTrapezoidalMap.getTrapezoids();
     n = dag.getNodes();
-/*
+
     for(size_t i=0; i < t.size(); i++){
         std::cout << "Trap #" << i << " " << t[i].getNodeIdx() << std::endl;
         std::cout << "Top segment: p1(" << t[i].getTopSegment().p1().x() << ", " << t[i].getTopSegment().p1().y() << ")";
@@ -248,7 +248,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     for(size_t i=0; i < n.size(); i++){
         std::cout << "Leaf #" << i << " " <<n[i].getIdx() << " Tipo: " << n[i].printType() << std::endl;
     }
-*/
+
     // Devo aggiornare l'id nel trapezoid
     //std::cout << dag.getNode(t.getNodeIdx()).getType();
 

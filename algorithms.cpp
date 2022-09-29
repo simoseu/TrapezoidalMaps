@@ -93,7 +93,7 @@ std::vector<size_t> followSegment(const cg3::Segment2d &segment, const Dag &dag,
 
     // Vector that will contain all trapezoids intersected by the segment
     std::vector<size_t> intersectedTrapezoids;
-
+    assert(segment.p1().x() < segment.p2().x());
     // Need to search the left endpoint of s in the DAG to find the trapezoid zero
     size_t idxTrapezoid = queryPoint(segment.p1(), dag, trapezoidalMapData);
     // Adding the trapezoid in the vector
@@ -154,7 +154,7 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
 
     // Get the intersected trapezoids with the function followSegment
     std::vector<size_t> intersectedTrapezoids = followSegment(orderedSegment, dag, trapezoidalMap, trapezoidalMapData);
-    assert(intersectedTrapezoids.size() > 0);
+    assert(intersectedTrapezoids.size() <= 1);
     std::cout << std::endl;
     std::cout << "Numero intersected trap: " << intersectedTrapezoids.size() << std::endl;
     std::cout << "IDX intersected trap: " << intersectedTrapezoids[0] << std::endl;
@@ -180,13 +180,13 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
         size_t rightTrapezoidIDX = std::numeric_limits<size_t>::max();
 
         // left trapezoid exist only if segment.p1 is not equal to the left point of the trapezoid
-        bool leftTrapezoidExist = segment.p1() != intersectedTrap.getLeftPoint();
+        bool leftTrapezoidExist = orderedSegment.p1() != intersectedTrap.getLeftPoint();
         if(leftTrapezoidExist){
             leftTrapezoidIDX = newIdx++; // Taking the next id of the bottomTrapezoid
         }
 
         // right trapezoid exist only if segment.p2 is not equal to the right point of the trapezoid
-        bool rightTrapezoidExist = segment.p2() != intersectedTrap.getRightPoint();
+        bool rightTrapezoidExist = orderedSegment.p2() != intersectedTrap.getRightPoint();
 
         if(rightTrapezoidExist){
             rightTrapezoidIDX = newIdx; // Taking the next id of the bottomTrapezoid or leftTrapezoid if exist
@@ -229,7 +229,7 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
 
         // TOP TRAPEZOID
 
-        Trapezoid topTrapezoid = Trapezoid(intersectedTrap.getTopSegment(), orderedSegment, segment.p1(), segment.p2());
+        Trapezoid topTrapezoid = Trapezoid(intersectedTrap.getTopSegment(), orderedSegment, orderedSegment.p1(), orderedSegment.p2());
         if(leftTrapezoidExist) topTrapezoid.setUpperLeftNeighbor(leftTrapezoidIDX);
         else if (!leftPointEqualTopLeftEndpoint(intersectedTrap)) topTrapezoid.setUpperLeftNeighbor(intersectedTrap.getUpperLeftNeighbor());
         else topTrapezoid.setUpperLeftNeighbor(std::numeric_limits<size_t>::max());
@@ -249,7 +249,7 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
         trapezoidalMap.replaceTrapezoid(topTrapezoid, topTrapezoidIDX);
 
         // BOTTOM TRAPEZOID
-        Trapezoid bottomTrapezoid = Trapezoid(orderedSegment, intersectedTrap.getBottomSegment(), segment.p1(), segment.p2());
+        Trapezoid bottomTrapezoid = Trapezoid(orderedSegment, intersectedTrap.getBottomSegment(), orderedSegment.p1(), orderedSegment.p2());
 
         // - No upper Neighbor
         bottomTrapezoid.setUpperLeftNeighbor(std::numeric_limits<size_t>::max());
@@ -273,7 +273,7 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
         // LEFT TRAPEZOID
         if(leftTrapezoidExist){
             Trapezoid leftTrapezoid = Trapezoid(intersectedTrap.getTopSegment(), intersectedTrap.getBottomSegment(),
-                                                intersectedTrap.getLeftPoint(), segment.p1());
+                                                intersectedTrap.getLeftPoint(), orderedSegment.p1());
 
             leftTrapezoid.setUpperLeftNeighbor(intersectedTrap.getUpperLeftNeighbor());
             leftTrapezoid.setUpperRightNeigbor(topTrapezoidIDX);
@@ -289,7 +289,7 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
         // RIGHT TRAPEZOID
         if(rightTrapezoidExist){
             Trapezoid rightTrapezoid = Trapezoid(intersectedTrap.getTopSegment(), intersectedTrap.getBottomSegment(),
-                                                 segment.p2(), intersectedTrap.getRightPoint());
+                                                 orderedSegment.p2(), intersectedTrap.getRightPoint());
 
             rightTrapezoid.setUpperLeftNeighbor(topTrapezoidIDX);
             rightTrapezoid.setUpperRightNeigbor(intersectedTrap.getUpperRightNeighbor());
@@ -317,7 +317,7 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
         if(leftTrapezoidExist){
             // nodo x
             bool found = false;
-            size_t pointIdx = trapezoidalMapData.findPoint(segment.p1(), found);
+            size_t pointIdx = trapezoidalMapData.findPoint(orderedSegment.p1(), found);
             Node newNode = Node(Node::NodeType::X, pointIdx, leftTrapLeaf, rightTrapezoidExist ? xRightNode : yNode);
             dag.replaceNode(newNode, xLeftNode);
             // left trap
@@ -328,7 +328,7 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
         if(rightTrapezoidExist){
             // node x
             bool found = false;
-            size_t pointIdx = trapezoidalMapData.findPoint(segment.p2(), found);
+            size_t pointIdx = trapezoidalMapData.findPoint(orderedSegment.p2(), found);
             Node newNode = Node(Node::NodeType::X, pointIdx, yNode, rightTrapLeaf);
             if(leftTrapezoidExist) dag.addNode(newNode);
             else dag.replaceNode(newNode, xRightNode);
@@ -340,7 +340,8 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
 
         // y-node
         bool found = false;
-        size_t segmentIdx = trapezoidalMapData.findSegment(segment, found);
+        size_t segmentIdx = trapezoidalMapData.findSegment(orderedSegment, found); // SE NON FUNZIONA RIMETTERE SEMGMENT INVECE DI ORDERED SEGMENT
+        assert(found == true); // Se non lo trova esce
         Node newNode = Node(Node::NodeType::Y, segmentIdx, topTrapLeaf, bottomTrapLeaf);
         if(leftTrapezoidExist || rightTrapezoidExist) dag.addNode(newNode);
         else dag.replaceNode(newNode, yNode);
