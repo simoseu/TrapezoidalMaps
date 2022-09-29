@@ -88,4 +88,19 @@ size_t Trapezoid::getNodeIdx() const{
     return nodeIdx;
 }
 
+// Return the corners of the trapezoid (in clockwise order)
+// Needed to draw the trapezoids
+const std::vector<cg3::Point2d> Trapezoid::getCorners() const{
+    std::vector<cg3::Point2d> corners;
+    double topSegmentSlope = (topSegment.p2().y() - topSegment.p1().y()) / (topSegment.p2().x() - topSegment.p1().x());
+    double bottomSegmentSlope = (bottomSegment.p2().y() - bottomSegment.p1().y()) / (bottomSegment.p2().x() - bottomSegment.p1().x());
+
+    corners.push_back(cg3::Point2d(leftPoint.x(), (topSegmentSlope)*(leftPoint.x() - topSegment.p1().x()) + topSegment.p1().y() )); // Upper left corner
+    corners.push_back(cg3::Point2d(rightPoint.x(), - (topSegmentSlope)*(topSegment.p2().x() - rightPoint.x()) + topSegment.p2().y() )); // Upper right corner
+    corners.push_back(cg3::Point2d(rightPoint.x(), - (bottomSegmentSlope)*(bottomSegment.p2().x() - rightPoint.x()) + bottomSegment.p2().y() )); // Upper left corner
+    corners.push_back(cg3::Point2d(leftPoint.x(), (bottomSegmentSlope)*(leftPoint.x() - bottomSegment.p1().x()) + bottomSegment.p1().y() )); // Upper left corner
+
+    return corners;
+}
+
 

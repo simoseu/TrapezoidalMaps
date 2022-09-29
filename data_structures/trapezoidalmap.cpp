@@ -1,6 +1,6 @@
 #include "trapezoidalmap.h"
 
-TrapezoidalMap::TrapezoidalMap(){
+TrapezoidalMap::TrapezoidalMap(cg3::Point2d upperLeftPointBB, cg3::Point2d lowerRightPointBB): boundingBox(cg3::BoundingBox2(upperLeftPointBB, lowerRightPointBB)){
 
 }
 
@@ -18,4 +18,8 @@ const Trapezoid &TrapezoidalMap::getTrapezoid(size_t index) const{
 
 void TrapezoidalMap::replaceTrapezoid(Trapezoid &trapezoid, size_t idx){
     trapezoids[idx] = trapezoid;
+}
+
+const cg3::BoundingBox2 &TrapezoidalMap::getBoundingBox() const{
+    return boundingBox;
 }

@@ -155,7 +155,11 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
     // Get the intersected trapezoids with the function followSegment
     std::vector<size_t> intersectedTrapezoids = followSegment(orderedSegment, dag, trapezoidalMap, trapezoidalMapData);
     assert(intersectedTrapezoids.size() > 0);
-
+    std::cout << std::endl;
+    std::cout << "Numero intersected trap: " << intersectedTrapezoids.size() << std::endl;
+    std::cout << "IDX intersected trap: " << intersectedTrapezoids[0] << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
     // Split in two case to handle - the segment intersect only one trapezoid and the segment intersect more trapezoid
     // Only one trapezoid intersected
     if(intersectedTrapezoids.size() == 1){
@@ -268,8 +272,8 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap
 
         // LEFT TRAPEZOID
         if(leftTrapezoidExist){
-            Trapezoid leftTrapezoid = Trapezoid(intersectedTrap.getBottomSegment(), intersectedTrap.getBottomSegment(),
-                                                intersectedTrap.getLeftPoint(), segment.p2());
+            Trapezoid leftTrapezoid = Trapezoid(intersectedTrap.getTopSegment(), intersectedTrap.getBottomSegment(),
+                                                intersectedTrap.getLeftPoint(), segment.p1());
 
             leftTrapezoid.setUpperLeftNeighbor(intersectedTrap.getUpperLeftNeighbor());
             leftTrapezoid.setUpperRightNeigbor(topTrapezoidIDX);

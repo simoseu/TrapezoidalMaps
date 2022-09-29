@@ -41,11 +41,11 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
                 cg3::Point2d(BOUNDINGBOX, BOUNDINGBOX)),
     firstPointSelectedColor(220, 80, 80),
     firstPointSelectedSize(5),
-    isFirstPointSelected(false)
+    isFirstPointSelected(false),
+    drawableTrapezoidalMap(cg3::Point2d(-BOUNDINGBOX, -BOUNDINGBOX),
+                           cg3::Point2d(BOUNDINGBOX, BOUNDINGBOX))
 {
 
-    // Initialize the trapezoidalMap and the dag
-    algorithms::initializeStructures(dag, trapezoidalMap);
 
     //NOTE 1: you probably need to initialize some objects in the constructor. You
     //can see how to initialize an attribute in the lines above. This is C++ style
@@ -76,6 +76,7 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
 
 
 
+
     //---------------------------------------------------------------------
     //Add the drawable objects you need. Note that the drawable trapezoidal map could only
     //draw the trapezoids (polygons, see GL_POLYGON!). You have already the segments drawn.
@@ -92,7 +93,10 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
 
 
 
+    // Initialize the trapezoidalMap and the dag
+    algorithms::initializeStructures(dag, drawableTrapezoidalMap);
 
+    mainWindow.pushDrawableObject(&drawableTrapezoidalMap, "Trapezoidal Map");
     //#####################################################################
 
 
@@ -132,6 +136,7 @@ TrapezoidalMapManager::~TrapezoidalMapManager()
 
 
 
+    mainWindow.deleteDrawableObject(&drawableTrapezoidalMap);
     //#####################################################################
 
 
@@ -203,7 +208,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //it more efficient in memory. However, depending on how you implement your algorithms and data 
     //structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
 
-    std::vector<Trapezoid> t = trapezoidalMap.getTrapezoids();
+    std::vector<Trapezoid> t = drawableTrapezoidalMap.getTrapezoids();
 
     for(size_t i=0; i < t.size(); i++){
         std::cout << "Trap #" << i << " " << t[i].getNodeIdx() << std::endl;
@@ -215,19 +220,35 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
         std::cout << "Node #" << i << " " <<n[i].getIdx() << " Tipo: " << n[i].printType() << std::endl;
     }
 
-    algorithms::buildTrapezoidalMap(segment, dag, trapezoidalMap, drawableTrapezoidalMapDataset);
+    algorithms::buildTrapezoidalMap(segment, dag, drawableTrapezoidalMap, drawableTrapezoidalMapDataset);
 
-    t = trapezoidalMap.getTrapezoids();
+    t = drawableTrapezoidalMap.getTrapezoids();
     n = dag.getNodes();
-
+/*
     for(size_t i=0; i < t.size(); i++){
         std::cout << "Trap #" << i << " " << t[i].getNodeIdx() << std::endl;
+        std::cout << "Top segment: p1(" << t[i].getTopSegment().p1().x() << ", " << t[i].getTopSegment().p1().y() << ")";
+        std::cout << " p2(" << t[i].getTopSegment().p2().x() << ", " << t[i].getTopSegment().p2().y() << ")" << std::endl;
+        std::cout << "Bottom segment: p1(" << t[i].getBottomSegment().p1().x() << ", " << t[i].getBottomSegment().p1().y() << ")";
+        std::cout << " p2(" << t[i].getBottomSegment().p2().x() << ", " << t[i].getBottomSegment().p2().y() << ")" << std::endl;
+
+        std::cout << "LeftPoint: (" << t[i].getLeftPoint().x() << ", " << t[i].getLeftPoint().y() << ") ";
+        std::cout << "RightPoint: (" << t[i].getRightPoint().x() << ", " << t[i].getRightPoint().y() << ") " << std::endl;
+
+        std::cout <<"" <<std::endl;
+
+        std::cout << "UpperLeft Corner: (" << t[i].getCorners()[0].x() << ", " << t[i].getCorners()[0].y() << ")" << std::endl;
+        std::cout << "UpperRight Corner: (" << t[i].getCorners()[1].x() << ", " << t[i].getCorners()[1].y() << ")" << std::endl;
+        std::cout << "LowerRight Corner: (" << t[i].getCorners()[2].x() << ", " << t[i].getCorners()[2].y() << ")" << std::endl;
+        std::cout << "LowerLeft Corner: (" << t[i].getCorners()[3].x() << ", " << t[i].getCorners()[3].y() << ")" << std::endl;
+
+        std::cout << "--------------------" <<std::endl;
     }
 
     for(size_t i=0; i < n.size(); i++){
         std::cout << "Leaf #" << i << " " <<n[i].getIdx() << " Tipo: " << n[i].printType() << std::endl;
     }
-
+*/
     // Devo aggiornare l'id nel trapezoid
     //std::cout << dag.getNode(t.getNodeIdx()).getType();
 
@@ -247,6 +268,8 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
  */
 void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 {
+    std::cout << "" << std::endl;
+    std::cout << "Il punto si trova nel trapezoid con index: " << algorithms::queryPoint(queryPoint, dag, drawableTrapezoidalMapDataset) << std::endl;
     /* TEST VARI
     std::vector<cg3::Segment2d> segments = drawableTrapezoidalMapDataset.getSegments();
     std::vector<cg3::Point2d> points = drawableTrapezoidalMapDataset.getPoints();

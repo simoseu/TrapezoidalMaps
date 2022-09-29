@@ -3,6 +3,7 @@
 
 #include "node.h"
 #include <cg3/geometry/segment2.h>
+#include <vector>
 
 /**
  * @brief This class define the Trapezoid data structure.
@@ -37,6 +38,8 @@ public:
 
     void setNodeIdx(size_t idx);
     size_t getNodeIdx() const;
+
+    const std::vector<cg3::Point2d> getCorners() const; // Returns the corner of the trapezoid (to draw it)
 
 private:
     cg3::Segment2d topSegment;
