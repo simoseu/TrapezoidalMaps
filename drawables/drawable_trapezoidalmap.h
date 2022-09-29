@@ -19,14 +19,15 @@ public:
     cg3::Point3d sceneCenter() const;
     double sceneRadius() const;
 
-    const cg3::Color& getColor() const;
-    void setColor(const cg3::Color& value);
 
+    void addTrapezoid(Trapezoid &trapezoid);
     const cg3::Color randomColor() const;
 
-private:
-    cg3::Color color;
+    void setHighlightedTrap(size_t idx);
 
+private:
+    std::vector<cg3::Color> colors;
+    size_t highlightedTrap;
 };
 
 #endif // DRAWABLE_TRAPEZOIDALMAP_H

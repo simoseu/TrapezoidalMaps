@@ -3,31 +3,33 @@
 #include <cg3/viewer/opengl_objects/opengl_objects2.h>
 
 
-DrawableTrapezoidalMap::DrawableTrapezoidalMap(cg3::Point2d upperLeftPointBB, cg3::Point2d lowerRightPointBB): TrapezoidalMap(upperLeftPointBB, lowerRightPointBB){
+DrawableTrapezoidalMap::DrawableTrapezoidalMap(cg3::Point2d upperLeftPointBB, cg3::Point2d lowerRightPointBB): TrapezoidalMap(upperLeftPointBB, lowerRightPointBB),
+    highlightedTrap(std::numeric_limits<size_t>::max())
+{
 
 }
 
 
 const cg3::Color DrawableTrapezoidalMap::randomColor() const{
 
-    int red = std::rand()%256;
-    int green = std::rand()%256;
-    int blue = std::rand()%256;
+    float red = std::rand()%256;
+    float green = std::rand()%256;
+    float blue = std::rand()%256;
 
 
     red = (red + 255) / 2;
     green = (green + 255) / 2;
     blue = (blue + 255) / 2;
 
-    const cg3::Color c = cg3::Color(red, green, blue);
-    return c;
+    return cg3::Color(red, green, blue);
 }
 
 void DrawableTrapezoidalMap::draw() const{
-
-    for(const Trapezoid trap : getTrapezoids()){
+    size_t idx = 0;
+    for(Trapezoid trap : getTrapezoids()){
         const std::vector<cg3::Point2d> corners = trap.getCorners();
-        cg3::Color colore = randomColor();
+        cg3::Color colore = colors[idx];
+        if(highlightedTrap == idx++) colore = cg3::Color(212,255,50);
         // Check if the left endpoint of the top segment is equal to the left endpoint of the bottom segment (it is a triangle)
         if(corners[0] == corners[3]){
             cg3::opengl::drawLine2(corners[0], corners[1], cg3::Color(0,0,0), 3);
@@ -61,4 +63,14 @@ double DrawableTrapezoidalMap::sceneRadius() const
 {
     const cg3::BoundingBox2& boundingBox = cg3::BoundingBox2();
     return boundingBox.diag();
+}
+
+void DrawableTrapezoidalMap::addTrapezoid(Trapezoid &trapezoid){
+    // Add the color for the trap in the vector of color
+    colors.push_back(randomColor());
+    TrapezoidalMap::addTrapezoid(trapezoid);
+}
+
+void DrawableTrapezoidalMap::setHighlightedTrap(size_t idx){
+    highlightedTrap = idx;
 }

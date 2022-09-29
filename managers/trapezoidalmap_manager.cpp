@@ -268,25 +268,6 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
  */
 void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 {
-    std::cout << "" << std::endl;
-    std::cout << "Il punto si trova nel trapezoid con index: " << algorithms::queryPoint(queryPoint, dag, drawableTrapezoidalMapDataset) << std::endl;
-    /* TEST VARI
-    std::vector<cg3::Segment2d> segments = drawableTrapezoidalMapDataset.getSegments();
-    std::vector<cg3::Point2d> points = drawableTrapezoidalMapDataset.getPoints();
-    std::cout << "Ciao" << std::endl;
-    std::cout << "Numero di segmenti dentro dataset: " << segments.size() << std::endl;
-    std::cout << "Numero di punti dentro dataset: " << points.size() << std::endl;;
-
-    for(size_t i = 0; i < segments.size(); i++){
-        std::cout << "Segmento #" << i << ": " << std::endl;
-        std::cout << "P1: " << segments[i].p1().x() << ", " << segments[i].p1().y() << std::endl;
-        std::cout << "P2: " << segments[i].p2().x() << ", " << segments[i].p2().y() << std::endl;
-    }
-    const cg3::Segment2d &seg = segments[0];
-    std::cout << "Above: " << cg3::isPointAtLeft(seg, queryPoint) << std::endl;
-    std::cout << "Below: " << cg3::isPointAtRight(seg, queryPoint) << std::endl;
-    */
-
     //---------------------------------------------------------------------
     //Execute the point location algorithm of your TrapezoidalMap to locate in which trapezoid
     //the point is contained.
@@ -313,10 +294,12 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 
 
 
-
     //#####################################################################
+    size_t trapIdx = algorithms::queryPoint(queryPoint, dag, drawableTrapezoidalMapDataset);
 
 
+    std::cout << "" << std::endl;
+    std::cout << "Il punto si trova nel trapezoid con index: " << algorithms::queryPoint(queryPoint, dag, drawableTrapezoidalMapDataset) << std::endl;
 
     //---------------------------------------------------------------------
     //When you find the trapezoid in which the point is contained, you should highlight
@@ -328,7 +311,7 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 
 
     //#####################################################################
-
+    drawableTrapezoidalMap.setHighlightedTrap(trapIdx);
 
 
     //You can delete this line after you implement the algorithm: it is

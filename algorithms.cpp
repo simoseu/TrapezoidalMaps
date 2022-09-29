@@ -123,7 +123,7 @@ std::vector<size_t> followSegment(const cg3::Segment2d &segment, const Dag &dag,
  * @param[in] trapezoidalMap The trapezoidal Map data structure
  *
  */
-void initializeStructures(Dag &dag, TrapezoidalMap &trapezoidalMap){
+void initializeStructures(Dag &dag, DrawableTrapezoidalMap &trapezoidalMap){
     // The trapezoidal map for the empty set consist of a single trapezoid, which is the bounding rectangle.
     cg3::Segment2d topSegment = cg3::Segment2d(cg3::Point2d(-BOUNDINGBOX, BOUNDINGBOX), cg3::Point2d(BOUNDINGBOX, BOUNDINGBOX));
     cg3::Segment2d bottomSegment = cg3::Segment2d(cg3::Point2d(-BOUNDINGBOX, -BOUNDINGBOX), cg3::Point2d(BOUNDINGBOX, -BOUNDINGBOX));
@@ -142,7 +142,7 @@ void initializeStructures(Dag &dag, TrapezoidalMap &trapezoidalMap){
     dag.addNode(boundingBoxNode);
 }
 
-void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, TrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData){
+void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, DrawableTrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData){
     // Before adding a segment is necessary to: Determine a bounding box R that contains all segments of S, and initialize the trapezoidal map structure T and search structure D for it.
 
     // Ordering the segment for ensuring that the second point (p2) is the right endpoint of the segment
