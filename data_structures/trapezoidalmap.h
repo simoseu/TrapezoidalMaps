@@ -16,7 +16,9 @@ public:
     TrapezoidalMap(cg3::Point2d upperLeftPointBB, cg3::Point2d lowerRightPointBB);
     void addTrapezoid(Trapezoid &trapezoid);
     const std::vector<Trapezoid> &getTrapezoids() const;
+
     const Trapezoid &getTrapezoid(size_t idx) const;
+    Trapezoid &getTrapezoid(size_t idx);
 
     // Necessary for replacing old trapezoids when a new segment is added
     void replaceTrapezoid(Trapezoid &trapezoid, size_t idx);

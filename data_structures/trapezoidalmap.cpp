@@ -16,6 +16,10 @@ const Trapezoid &TrapezoidalMap::getTrapezoid(size_t index) const{
     return trapezoids[index];
 }
 
+Trapezoid &TrapezoidalMap::getTrapezoid(size_t index){
+    return trapezoids[index];
+}
+
 void TrapezoidalMap::replaceTrapezoid(Trapezoid &trapezoid, size_t idx){
     trapezoids[idx] = trapezoid;
 }

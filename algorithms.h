@@ -27,6 +27,9 @@ namespace algorithms{
 
     bool rightPointEqualBottomRightEndpoint(Trapezoid trapezoid);
 
+    void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTrapIdx, Dag &dag, DrawableTrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData);
+
+    void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t> intersectedTraps, Dag &dag, DrawableTrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData);
 }
 
 #endif // ALGORITHMS_H
