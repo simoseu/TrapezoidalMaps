@@ -55,15 +55,16 @@ void DrawableTrapezoidalMap::draw() const{
 
 cg3::Point3d DrawableTrapezoidalMap::sceneCenter() const
 {
-    const cg3::BoundingBox2& boundingBox = cg3::BoundingBox2();
+    const cg3::BoundingBox2& boundingBox = this->getBoundingBox();
     return cg3::Point3d(boundingBox.center().x(), boundingBox.center().y(), 0);
 }
 
 double DrawableTrapezoidalMap::sceneRadius() const
 {
-    const cg3::BoundingBox2& boundingBox = cg3::BoundingBox2();
+    const cg3::BoundingBox2& boundingBox = this->getBoundingBox();
     return boundingBox.diag();
 }
+
 
 void DrawableTrapezoidalMap::addTrapezoid(Trapezoid &trapezoid){
     // Add the color for the trap in the vector of color

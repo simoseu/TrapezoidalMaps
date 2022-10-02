@@ -17,25 +17,25 @@ void orderSegment(cg3::Segment2d &segment){
 }
 
 // Return true if the left point of a trapezoid is equal to the left endpoint of its top segment
-bool leftPointEqualTopLeftEndpoint(Trapezoid trapezoid){
+bool leftPointEqualTopLeftEndpoint(const Trapezoid &trapezoid){
     cg3::Segment2d topSegment = trapezoid.getTopSegment();
     orderSegment(topSegment);
     return trapezoid.getLeftPoint() == topSegment.p1();
 }
 
-bool rightPointEqualTopRightEndpoint(Trapezoid trapezoid){
+bool rightPointEqualTopRightEndpoint(const Trapezoid &trapezoid){
     cg3::Segment2d topSegment = trapezoid.getTopSegment();
     orderSegment(topSegment);
     return trapezoid.getRightPoint() == topSegment.p2();
 }
 
-bool leftPointEqualBottomLeftEndpoint(Trapezoid trapezoid){
+bool leftPointEqualBottomLeftEndpoint(const Trapezoid &trapezoid){
     cg3::Segment2d bottomSegment = trapezoid.getBottomSegment();
     orderSegment(bottomSegment);
     return trapezoid.getLeftPoint() == bottomSegment.p1();
 }
 
-bool rightPointEqualBottomRightEndpoint(Trapezoid trapezoid){
+bool rightPointEqualBottomRightEndpoint(const Trapezoid &trapezoid){
     cg3::Segment2d bottomSegment = trapezoid.getBottomSegment();
     orderSegment(bottomSegment);
     return trapezoid.getRightPoint() == bottomSegment.p2();
@@ -304,7 +304,6 @@ void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTr
     if(rightTrapezoidExists) bottomTrapezoid.setLowerRightNeighbor(rightTrapezoidIdx);
     else if(!rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
     else bottomTrapezoid.setLowerRightNeighbor(nullIdx);
-    // Dag leaf idx
     bottomTrapezoid.setNodeIdx(bottomTrapLeaf);
     trapezoidalMap.addTrapezoid(bottomTrapezoid);
 
@@ -316,8 +315,7 @@ void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTr
         leftTrapezoid.setUpperRightNeigbor(topTrapezoidIdx);
         leftTrapezoid.setLowerLeftNeighbor(intersectedTrapCopy.getLowerLeftNeighbor());
         leftTrapezoid.setLowerRightNeighbor(bottomTrapezoidIdx);
-        // Dag leaf idx
-        leftTrapezoid.setNodeIdx(leafTrapLeft);
+        leftTrapezoid.setNodeIdx(leafTrapLeft); // Dag leaf index
         trapezoidalMap.addTrapezoid(leftTrapezoid);
     }
 
@@ -329,7 +327,6 @@ void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTr
         rightTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
         rightTrapezoid.setLowerLeftNeighbor(bottomTrapezoidIdx);
         rightTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
-        // Dag leaf idx
         rightTrapezoid.setNodeIdx(leafTrapRight);
         trapezoidalMap.addTrapezoid(rightTrapezoid);
     }
@@ -342,46 +339,46 @@ void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTr
      *      - At most 4 leaf representing the new trapezoids
     */
 
-    // Create the substree of the dag
+    // Updating the dag
     if(leftTrapezoidExists){
-        // nodo x
         bool found = false;
         size_t pointIdx = trapezoidalMapData.findPoint(segment.p1(), found);
         assert(found == true);
+        // X node
         Node newNode = Node(Node::NodeType::X, pointIdx, leafTrapLeft, rightTrapezoidExists ? xNodeRight : yNode);
         dag.replaceNode(newNode, xNodeLeft);
-        // left trap
+        // Left trapezoid leaf
         newNode = Node(Node::NodeType::LEAF, leftTrapezoidIdx, nullIdx, nullIdx);
         dag.addNode(newNode);
     }
 
     if(rightTrapezoidExists){
-        // node x
         bool found = false;
         size_t pointIdx = trapezoidalMapData.findPoint(segment.p2(), found);
         assert(found == true);
+        // X node
         Node newNode = Node(Node::NodeType::X, pointIdx, yNode, leafTrapRight);
         if(leftTrapezoidExists) dag.addNode(newNode);
         else dag.replaceNode(newNode, xNodeRight);
-
-        //right trap
+        // Right trapezoid Leaf
         newNode = Node(Node::NodeType::LEAF, rightTrapezoidIdx, nullIdx, nullIdx);
         dag.addNode(newNode);
     }
 
-    // y-node
+    // Y node
     bool found = false;
     size_t segmentIdx = trapezoidalMapData.findSegment(segment, found); // SE NON FUNZIONA RIMETTERE SEMGMENT INVECE DI ORDERED SEGMENT
-    assert(found == true); // Se non lo trova esce
+    assert(found == true);
+
     Node newNode = Node(Node::NodeType::Y, segmentIdx, topTrapLeaf, bottomTrapLeaf);
     if(leftTrapezoidExists || rightTrapezoidExists) dag.addNode(newNode);
     else dag.replaceNode(newNode, yNode);
 
-    // Leaf top trap
+    // Top trapezoid Leaf
     newNode = Node(Node::NodeType::LEAF, topTrapezoidIdx, nullIdx, nullIdx);
     dag.addNode(newNode);
 
-    // Leaf bottom trap
+    // Bottom trapezoid Leaf
     newNode = Node(Node::NodeType::LEAF, bottomTrapezoidIdx, nullIdx, nullIdx);
     dag.addNode(newNode);
 }
@@ -402,7 +399,6 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
 
     // - Setting Indexes of new trapezoids
     size_t newIdx = trapezoidalMap.numTrapezoids();
-
     size_t topTrapezoidIdx = intersectedTrapIdx;  // Taking the idx of the intersected trapezoid
     // left Trapezoid may not exist so the index is given after checking if they exist
     size_t leftTrapezoidIdx = leftTrapezoidExists ? newIdx++ : nullIdx;
@@ -436,6 +432,7 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
     }
 
     // --------------UPDATING THE TRAPEZOIDAL MAP------------------
+    // LEFT trapezoid if exists
     if(leftTrapezoidExists){
         Trapezoid leftTrapezoid = Trapezoid(intersectedTrapCopy.getTopSegment(), intersectedTrapCopy.getBottomSegment(),
                                             intersectedTrapCopy.getLeftPoint(), segment.p1());
@@ -447,33 +444,26 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
         leftTrapezoid.setNodeIdx(leafTrapLeft);
         trapezoidalMap.addTrapezoid(leftTrapezoid);
     }
-
-    // TOP TRAPEZOID (it will be inserted while checking the internal trapezoids)
-
-    Trapezoid topTrapezoid = Trapezoid(intersectedTrapCopy.getTopSegment(), segment, segment.p1(), cg3::Point2d(0,0)); // Unknown right point
-    // setting its neighbors
+    // TOP TRAPEZOID (it will be inserted while checking the next trapezoids)
+    Trapezoid topTrapezoid = Trapezoid(intersectedTrapCopy.getTopSegment(), segment, segment.p1(), cg3::Point2d(0,0)); // Unknown right point update later
+    // Setting its neighbors
     if(leftTrapezoidExists) topTrapezoid.setUpperLeftNeighbor(leftTrapezoidIdx);
     else if (!leftPointEqualTopLeftEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperLeftNeighbor(intersectedTrapCopy.getUpperLeftNeighbor());
     else topTrapezoid.setUpperLeftNeighbor(nullIdx);
-
-    topTrapezoid.setUpperRightNeigbor(nullIdx);     // - top right neighbor UNKNOWN
-    topTrapezoid.setLowerLeftNeighbor(nullIdx);     // - No lower Neighbor UNKNOWN
+    topTrapezoid.setUpperRightNeigbor(nullIdx);
+    topTrapezoid.setLowerLeftNeighbor(nullIdx);
     topTrapezoid.setLowerRightNeighbor(nullIdx);
-
-    topTrapezoid.setNodeIdx(topTrapLeaf);           // Dag leaf idx
+    topTrapezoid.setNodeIdx(topTrapLeaf);
 
     // BOTTOM TRAPEZOID
-    Trapezoid bottomTrapezoid = Trapezoid(segment, intersectedTrapCopy.getBottomSegment(), segment.p1(), cg3::Point2d(0,0)); // Unknown right point
-
-    // setting its neighbors
-    bottomTrapezoid.setUpperLeftNeighbor(nullIdx);      // - No upper Neighbor
+    Trapezoid bottomTrapezoid = Trapezoid(segment, intersectedTrapCopy.getBottomSegment(), segment.p1(), cg3::Point2d(0,0)); // Unknown right point update later
+    // Setting its neighbors (they will be updated in the future iterations)
+    bottomTrapezoid.setUpperLeftNeighbor(nullIdx);
     bottomTrapezoid.setUpperRightNeigbor(nullIdx);
-    bottomTrapezoid.setLowerRightNeighbor(nullIdx);    // - lower right neighbor
-
+    bottomTrapezoid.setLowerRightNeighbor(nullIdx);
     if(leftTrapezoidExists) bottomTrapezoid.setLowerLeftNeighbor(leftTrapezoidIdx);
     else if(!leftPointEqualBottomLeftEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerLeftNeighbor(intersectedTrapCopy.getLowerLeftNeighbor());
     else bottomTrapezoid.setLowerLeftNeighbor(nullIdx);
-
     bottomTrapezoid.setNodeIdx(bottomTrapLeaf);    // Dag leaf idx
 
     // -------------------- UPDATE THE DAG ---------------------------
@@ -492,15 +482,15 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
     }
     bool found = false;
     size_t segmentIdx = trapezoidalMapData.findSegment(segment, found);
-    assert(found == true); // Se non lo trova esce
-    // y-node
+    assert(found == true);
+    // Y node
     Node newNode = Node(Node::NodeType::Y, segmentIdx, topTrapLeaf, bottomTrapLeaf);
     if(leftTrapezoidExists) dag.addNode(newNode);
     else dag.replaceNode(newNode, yNode);
-    // Leaf top trap
+    // Top trapezoid leaf
     newNode = Node(Node::NodeType::LEAF, topTrapezoidIdx, nullIdx, nullIdx);
     dag.addNode(newNode);
-    // Leaf bottom trap
+    // Bottom trapezoid leaf
     newNode = Node(Node::NodeType::LEAF, bottomTrapezoidIdx, nullIdx, nullIdx);
     dag.addNode(newNode);
 
@@ -536,7 +526,7 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
 
         // Index for the DAG nodes (one y-node and top and bottom trapezoid leaves)
         yNode = intersectedTrapCopy.getNodeIdx();
-        // Trap Leaf idx change only when the a new trap is created
+        // Trap Leaf indexx change only when a new trapezoid is created
         topTrapLeaf = previousTopTrapLeaf;
         bottomTrapLeaf = previousBottomTrapLeaf;
 
@@ -557,7 +547,7 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
             topTrapezoid.setLowerRightNeighbor(intersectedTrapIdx);    // The new top trap became the lower right neighbor of the previous
             topTrapezoid.setUpperRightNeigbor(prevIntersectedTrapezoid.getUpperRightNeighbor());
             topTrapezoid.setRightPoint(intersectedTrapCopy.getLeftPoint());
-            // If is not possible to replace (its index is greater than the dimension of the trapezoidalmap)
+            // If is not possible to replace (its index is greater than the dimension of the trapezoidalmap) than add to the end of the trapezoidal map
             if(!trapezoidalMap.replaceTrapezoid(topTrapezoid, previousTopTrapIdx)) trapezoidalMap.addTrapezoid(topTrapezoid);
 
             // New top trapezoid initialize
@@ -567,15 +557,14 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
             // Right neighbors will be computed in the future iterations
             topTrapezoid.setUpperRightNeigbor(nullIdx);
             topTrapezoid.setLowerRightNeighbor(nullIdx);
-
             topTrapezoid.setNodeIdx(topTrapLeaf);
 
-            previousTopTrapIdx = intersectedTrapIdx; // The new top trapezoid take the index of the intersected trap
-            previousTopTrapLeaf = topTrapLeaf;    // and its dag leaf idx
+            previousTopTrapIdx = intersectedTrapIdx; // Updating the previous top trapezoid index with the newly created
+            previousTopTrapLeaf = topTrapLeaf;       // and its dag index
 
         }else{  // Previous bottom trapezoid will be updated and added to the trapezidal map, a new botom trapezoid will be created.
             bottomTrapezoidIdx = intersectedTrapIdx;
-            bottomTrapLeaf = dag.numNodes();// Idx of the new bottom trapezoid
+            bottomTrapLeaf = dag.numNodes();// Dag index for the new bottom trapezoid
 
             // Previously created bottom trapezoid update and added to the trapezoidal map
             bottomTrapezoid.setLowerRightNeighbor(prevIntersectedTrapezoid.getLowerRightNeighbor());
@@ -590,172 +579,171 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
             // Right neighbors will be computed in the future iterations
             bottomTrapezoid.setUpperRightNeigbor(nullIdx);
             bottomTrapezoid.setLowerRightNeighbor(nullIdx);
-
             bottomTrapezoid.setNodeIdx(bottomTrapLeaf);
 
             previousBottomTrapIdx = intersectedTrapIdx; // Updating the previous bottom trapezoid index
             previousBottomTrapLeaf = bottomTrapLeaf;    // and its dag leaf idx
         }
-            // DAG UPDATE
-            // Y-node
+            // Dag updates
+            // Y node
             newNode = Node(Node::NodeType::Y, segmentIdx, topTrapLeaf, bottomTrapLeaf);
             dag.replaceNode(newNode, yNode);
-            // Added Trap leaf
+            // Ended trapezoid added (it can be top or bottom trap)
             newNode = Node(Node::NodeType::LEAF, intersectedTrapIdx, nullIdx, nullIdx);
             dag.addNode(newNode);
+
             // Updating the previous intersected trapezoid with the one just analyzed
             prevIntersectedTrapezoid = intersectedTrapCopy;
     }
 
-
     // ------------------------------- Rightmost Trapezoid intersected ---------------------------------------------
-
     intersectedTrapIdx = intersectedTraps.back(); // Taking the last trapezoid in the vector
     intersectedTrapCopy = trapezoidalMap.getTrapezoid(intersectedTrapIdx);
 
-    if(cg3::isPointAtLeft(segment, prevIntersectedTrapezoid.getRightPoint())){ // The right point is above the segment
-        topTrapezoidIdx = intersectedTrapIdx;
-    }else{
-        bottomTrapezoidIdx = intersectedTrapIdx;
-    }
-
-    size_t rightTrapezoidIdx = rightTrapezoidExists ? trapezoidalMap.numTrapezoids() : nullIdx; // Aggiustare l'idx se esiste
-
-    // Setting indexes of the dag nodes
-    newIdx = intersectedTrapCopy.getNodeIdx();     // Since we need to replace node that represent the intersected trapezoid we get its index
+    // Right point above segment (if true the top trapezoid found its end, if false the bottom trapezoid found its end)
+    bool topTrapEnds = cg3::isPointAtLeft(segment, prevIntersectedTrapezoid.getRightPoint());
+    size_t rightTrapezoidIdx = nullIdx; // will be updated when added in the trapezoidal map if the right trapezoid exists
+    // Dag indexes
+    newIdx = intersectedTrapCopy.getNodeIdx();
     size_t xNodeRight = nullIdx;
     size_t leafTrapRight = nullIdx;
 
-    if(rightTrapezoidExists){// the first x-node only if left trapezoid exist
+    if(rightTrapezoidExists){   // If right trapezoid exists setting the index of its leaf and of the right x node
         xNodeRight = newIdx;
-        newIdx = dag.numNodes(); // Taking the index next to the last node in the vector
+        newIdx = dag.numNodes();
         leafTrapRight = newIdx++;
     }
-    // Y-node
+    // Y node index
     yNode = rightTrapezoidExists ? newIdx++ : newIdx;
-    // If left trap not exist need to take the index next to the last node in the vector
-    if( !(rightTrapezoidExists ) ) newIdx = dag.numNodes();
-    // Top and Bottom Trap
-    topTrapLeaf = cg3::isPointAtLeft(segment, prevIntersectedTrapezoid.getRightPoint()) ?  newIdx : previousTopTrapLeaf;
-    bottomTrapLeaf = cg3::isPointAtLeft(segment, prevIntersectedTrapezoid.getRightPoint()) ? previousBottomTrapLeaf : newIdx;
+    if(!rightTrapezoidExists) newIdx = dag.numNodes();
 
-    // Update the neighbors of the neighbors trapezoid
+    // Update the neighbors of the right neighbor trapezoids
     if(prevIntersectedTrapezoid.getUpperRightNeighbor() != nullIdx){
         trapezoidalMap.getTrapezoid(prevIntersectedTrapezoid.getUpperRightNeighbor()).setUpperLeftNeighbor(previousTopTrapIdx);
     }
     if(prevIntersectedTrapezoid.getLowerRightNeighbor() != nullIdx){
         trapezoidalMap.getTrapezoid(prevIntersectedTrapezoid.getLowerRightNeighbor()).setLowerLeftNeighbor(previousBottomTrapIdx);
     }
-    if(intersectedTrapCopy.getUpperRightNeighbor() != nullIdx){
-        size_t neighbor = rightTrapezoidExists ? rightTrapezoidIdx : topTrapezoidIdx;
-        trapezoidalMap.getTrapezoid(intersectedTrapCopy.getUpperRightNeighbor()).setUpperLeftNeighbor(neighbor);
-    }
-    if(intersectedTrapCopy.getLowerRightNeighbor() != nullIdx){
-        size_t neighbor = rightTrapezoidExists ? rightTrapezoidIdx : bottomTrapezoidIdx;
-        trapezoidalMap.getTrapezoid(intersectedTrapCopy.getLowerRightNeighbor()).setLowerLeftNeighbor(neighbor);
-    }
 
-    // ------------------------ Trapezoidal Map Update -----------------------------
-    if(cg3::isPointAtLeft(segment, prevIntersectedTrapezoid.getRightPoint())){
-        // Now is possible to add the top and bottom trapezoids previously initializated
+    if(topTrapEnds){// Previous top and bottom trapezoids will be updated and added to the trapezoidal map, a new top trapezoid will be created.
+        // Indexes of the trapezoid leaves
+        topTrapLeaf = newIdx;
+        bottomTrapLeaf = previousBottomTrapLeaf;
+        // New Top trapezoid take the index of the intersected trapezoid
+        topTrapezoidIdx = intersectedTrapIdx;
+
+        // Updating and adding the previous top trapezoid to the trapezoidal map
         topTrapezoid.setRightPoint(intersectedTrapCopy.getLeftPoint());
         topTrapezoid.setUpperRightNeigbor(prevIntersectedTrapezoid.getUpperRightNeighbor());
         topTrapezoid.setLowerRightNeighbor(topTrapezoidIdx);
-
         if(!trapezoidalMap.replaceTrapezoid(topTrapezoid, previousTopTrapIdx)) trapezoidalMap.addTrapezoid(topTrapezoid);
 
-        // Also for the bottom trapezoid
+        // Updating and adding the bottom trapezoid previously initializated to the trapezoidal map
         bottomTrapezoid.setRightPoint(segment.p2());
         bottomTrapezoid.setUpperRightNeigbor(nullIdx);
-
-        if(rightTrapezoidExists) bottomTrapezoid.setLowerRightNeighbor(rightTrapezoidIdx);
-        else if(!rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
-        else bottomTrapezoid.setLowerRightNeighbor(nullIdx);
-
+        if(!rightTrapezoidExists){// if right trapezoid exists it will be updated after we add it to the trapezoidal map
+            if(!rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
+            else bottomTrapezoid.setLowerRightNeighbor(nullIdx);
+        }
         if(!trapezoidalMap.replaceTrapezoid(bottomTrapezoid, previousBottomTrapIdx)) trapezoidalMap.addTrapezoid(bottomTrapezoid);
 
-        // New top trap
+        // New top trapezoid
         topTrapezoid = Trapezoid(intersectedTrapCopy.getTopSegment(), segment, intersectedTrapCopy.getLeftPoint(), segment.p2());
         topTrapezoid.setUpperLeftNeighbor(intersectedTrapCopy.getUpperLeftNeighbor());
-        // - top right neighbor
-        if(rightTrapezoidExists) topTrapezoid.setUpperRightNeigbor(rightTrapezoidIdx);
-        else if (!rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
-        else topTrapezoid.setUpperRightNeigbor(nullIdx);
-
+        if(!rightTrapezoidExists){// if right trapezoid exists it will be updated after we add it to the trapezoidal map
+            if (!rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
+            else topTrapezoid.setUpperRightNeigbor(nullIdx);
+        }
         topTrapezoid.setLowerLeftNeighbor(previousTopTrapIdx);
         topTrapezoid.setLowerRightNeighbor(nullIdx);
         topTrapezoid.setNodeIdx(topTrapLeaf);
-
         trapezoidalMap.replaceTrapezoid(topTrapezoid, topTrapezoidIdx);
 
-        previousTopTrapIdx = topTrapezoidIdx;
+        previousTopTrapIdx = topTrapezoidIdx;// updating previous top trapezoid idx with the newly created trapezoid idx
 
-    }else{
+    }else{// Previous top and bottom trapezoids will be updated and added to the trapezoidal map, a new bottom trapezoid will be created.
+        // Indexes of the trapezoidal leaf
+        topTrapLeaf = previousTopTrapLeaf;
+        bottomTrapLeaf = newIdx;
+        // New Bottom trapezoid take the index of the intersected trapezoid
+        bottomTrapezoidIdx = intersectedTrapIdx;
 
+        // Updating and adding the bottom trapezoid previously initializated to the trapezoidal map
         bottomTrapezoid.setRightPoint(intersectedTrapCopy.getLeftPoint());
         bottomTrapezoid.setUpperRightNeigbor(bottomTrapezoidIdx);
         bottomTrapezoid.setLowerRightNeighbor(prevIntersectedTrapezoid.getLowerRightNeighbor());
         if(!trapezoidalMap.replaceTrapezoid(bottomTrapezoid, previousBottomTrapIdx))trapezoidalMap.addTrapezoid(bottomTrapezoid);
 
+        // Updating and adding the top trapezoid previously initializated to the trapezoidal map
         topTrapezoid.setRightPoint(segment.p2());
         topTrapezoid.setLowerRightNeighbor(nullIdx);
-        if(rightTrapezoidExists) topTrapezoid.setUpperRightNeigbor(rightTrapezoidIdx);
-        else if (!rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
-        else topTrapezoid.setUpperRightNeigbor(nullIdx);
-
+        if(!rightTrapezoidExists){// if right trapezoid exists it will be updated after we add it to the trapezoidal map
+            if (!rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
+            else topTrapezoid.setUpperRightNeigbor(nullIdx);
+        }
         if(!trapezoidalMap.replaceTrapezoid(topTrapezoid, previousTopTrapIdx)) trapezoidalMap.addTrapezoid(topTrapezoid);
 
+        // New top trapezoid
         bottomTrapezoid = Trapezoid(segment, intersectedTrapCopy.getBottomSegment(), intersectedTrapCopy.getLeftPoint(), segment.p2());
         bottomTrapezoid.setUpperLeftNeighbor(previousBottomTrapIdx);
         bottomTrapezoid.setUpperRightNeigbor(nullIdx);
-
         bottomTrapezoid.setLowerLeftNeighbor(intersectedTrapCopy.getLowerLeftNeighbor());
-
-        if(rightTrapezoidExists) bottomTrapezoid.setLowerRightNeighbor(rightTrapezoidIdx);
-        else if(!rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
-        else bottomTrapezoid.setLowerRightNeighbor(nullIdx);
-
+        if(!rightTrapezoidExists){// if right trapezoid exists it will be updated after we add it to the trapezoidal map
+            if(!rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
+            else bottomTrapezoid.setLowerRightNeighbor(nullIdx);
+        }
         bottomTrapezoid.setNodeIdx(bottomTrapLeaf);
-
         trapezoidalMap.replaceTrapezoid(bottomTrapezoid, bottomTrapezoidIdx);
 
-        previousBottomTrapIdx = bottomTrapezoidIdx;
+        previousBottomTrapIdx = bottomTrapezoidIdx; // uodating previous bottom trapezoid idx with the newly created trapezoid idx
     }
-
-    // Possibile right Trapezoid
+    // If right trapezoid exists we create it, add it to the trapezoidal map and update the upper right neighors of the previous top and bottom trapezoid
     if(rightTrapezoidExists){
+        rightTrapezoidIdx = trapezoidalMap.numTrapezoids(); // right trapezoid take the index next to the last trapezoid in the trapezoidal map
+        // Right trapezoid
         Trapezoid rightTrapezoid = intersectedTrapCopy;
         rightTrapezoid.setLeftPoint(segment.p2());
         rightTrapezoid.setUpperLeftNeighbor(previousTopTrapIdx);
         rightTrapezoid.setLowerLeftNeighbor(previousBottomTrapIdx);
         rightTrapezoid.setNodeIdx(leafTrapRight);
         trapezoidalMap.addTrapezoid(rightTrapezoid);
+        // Update the right neighbors of the top and bottom trapezoid
+        trapezoidalMap.getTrapezoid(previousTopTrapIdx).setUpperRightNeigbor(rightTrapezoidIdx);
+        trapezoidalMap.getTrapezoid(previousBottomTrapIdx).setLowerRightNeighbor(rightTrapezoidIdx);
+    }
+    // Updating the left neighbor of the trapezoids to the right of the right trapezoid (if they exists)
+    if(intersectedTrapCopy.getUpperRightNeighbor() != nullIdx){
+        size_t neighbor = rightTrapezoidExists ? rightTrapezoidIdx : previousTopTrapIdx;
+        trapezoidalMap.getTrapezoid(intersectedTrapCopy.getUpperRightNeighbor()).setUpperLeftNeighbor(neighbor);
+    }
+    if(intersectedTrapCopy.getLowerRightNeighbor() != nullIdx){
+        size_t neighbor = rightTrapezoidExists ? rightTrapezoidIdx : previousBottomTrapIdx;
+        trapezoidalMap.getTrapezoid(intersectedTrapCopy.getLowerRightNeighbor()).setLowerLeftNeighbor(neighbor);
     }
 
     // DAG UPDATE
     if(rightTrapezoidExists){
-
         size_t pointIdx = trapezoidalMapData.findPoint(segment.p2(), found);
         assert(found == true);
+        // X node
         newNode = Node(Node::NodeType::X, pointIdx, yNode, leafTrapRight);
         dag.replaceNode(newNode, xNodeRight);
-
+        // right trap leaf
         newNode = Node(Node::NodeType::LEAF, rightTrapezoidIdx, nullIdx, nullIdx);
         dag.addNode(newNode);
     }
-
+    // Y node
     newNode = Node(Node::NodeType::Y, segmentIdx, topTrapLeaf, bottomTrapLeaf);
     rightTrapezoidExists ? dag.addNode(newNode) : dag.replaceNode(newNode, yNode);
-
-    if(cg3::isPointAtLeft(segment, prevIntersectedTrapezoid.getRightPoint())){
+    // New Top or Bottom trapezoid leaf
+    if(topTrapEnds){
+        // new Top trapezoid leaf added to the dag
         newNode = Node(Node::NodeType::LEAF, previousTopTrapIdx, nullIdx, nullIdx);
-
         dag.addNode(newNode);
     }else{
+        // new bottom trapezoid leaf added to the dag
         newNode = Node(Node::NodeType::LEAF, previousBottomTrapIdx, nullIdx, nullIdx);
-
         dag.addNode(newNode);
     }
-
 }
 }
