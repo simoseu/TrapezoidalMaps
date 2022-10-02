@@ -328,8 +328,10 @@ void TrapezoidalMapManager::clearTrapezoidalMap()
     //---------------------------------------------------------------------
     //Clear here your trapezoidal map data structure.
 
-
-
+    dag.clear();
+    drawableTrapezoidalMap.clear();
+    // Re initialize the trapezoidal map and the dag with the bounding box
+    algorithms::initializeStructures(dag, drawableTrapezoidalMap);
     //#####################################################################
 }
 
