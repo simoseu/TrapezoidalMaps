@@ -5,7 +5,8 @@
 
 #include <cg3/viewer/interfaces/drawable_object.h>
 
-#include <cg3/utilities/color.h>
+#include "utils/projectUtils.h"
+
 
 /**
  * @brief Class to draw the trapezoid, drawable version of the trapezoidal map.
@@ -23,8 +24,6 @@ public:
     double sceneRadius() const;
     // Add trapezoid adapted for adding also a color when a trapezoid is added
     void addTrapezoid(Trapezoid &trapezoid);
-    // Utility function to generate a random color
-    const cg3::Color randomColor() const;
     // Set the index of the trapezoid to highlight
     void setHighlightedTrap(size_t idx);
     // Delete all trapezoids and all colors stored

@@ -6,40 +6,8 @@
 //Do not change the following line
 #define BOUNDINGBOX 1e+6
 
+
 namespace algorithms{
-// Order the points of a segment by x values
-void orderSegment(cg3::Segment2d &segment){
-    if (segment.p1().x() > segment.p2().x()) {
-        cg3::Point2d aux = segment.p1();
-        segment.setP1(segment.p2());
-        segment.setP2(aux);
-    }
-}
-
-// Return true if the left point of a trapezoid is equal to the left endpoint of its top segment
-bool leftPointEqualTopLeftEndpoint(const Trapezoid &trapezoid){
-    cg3::Segment2d topSegment = trapezoid.getTopSegment();
-    orderSegment(topSegment);
-    return trapezoid.getLeftPoint() == topSegment.p1();
-}
-
-bool rightPointEqualTopRightEndpoint(const Trapezoid &trapezoid){
-    cg3::Segment2d topSegment = trapezoid.getTopSegment();
-    orderSegment(topSegment);
-    return trapezoid.getRightPoint() == topSegment.p2();
-}
-
-bool leftPointEqualBottomLeftEndpoint(const Trapezoid &trapezoid){
-    cg3::Segment2d bottomSegment = trapezoid.getBottomSegment();
-    orderSegment(bottomSegment);
-    return trapezoid.getLeftPoint() == bottomSegment.p1();
-}
-
-bool rightPointEqualBottomRightEndpoint(const Trapezoid &trapezoid){
-    cg3::Segment2d bottomSegment = trapezoid.getBottomSegment();
-    orderSegment(bottomSegment);
-    return trapezoid.getRightPoint() == bottomSegment.p2();
-}
 
 /**
  * @brief Locate in which trapezoid lies the left endpoint of a given segment. Usefull for the building of the trapezoidal map.
@@ -64,7 +32,7 @@ size_t querySegment(const cg3::Segment2d &querySegment, const Dag &dag, const Tr
         }else if(node.getType() == Node::NodeType::Y){ // The node refer to a segment
             // The point "q" is above or below the segment
             cg3::Segment2d segment = trapezoidalMapData.getSegment(node.getIdx());
-            orderSegment(segment);
+            ProjectUtils::orderSegment(segment);
             if(cg3::isPointAtLeft(segment, querySegment.p1())){ // return true if the left endpoint point is above, false otherwise
                 node = dag.getNode(node.getLeftIdx());
             }else if(cg3::isPointAtRight(segment, querySegment.p1())){ // If the left endpoint is below
@@ -88,6 +56,7 @@ size_t querySegment(const cg3::Segment2d &querySegment, const Dag &dag, const Tr
  * @param[in] dag The DAG search structure
  * @param[in] TrapezoidalMapData The trapezoidal map dataset data structure
  * @return The index of the trapezoid in which lies the query point
+ * Perform the search in the Dag search structure by exploiting the different node types (x: point, y: segment, leaf: trapezoid)
 */
 size_t queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMapDataset &trapezoidalMapData){
 
@@ -108,7 +77,7 @@ size_t queryPoint(const cg3::Point2d &q, const Dag &dag, const TrapezoidalMapDat
         }else if(node.getType() == Node::NodeType::Y){ // The node refer to a segment
             // The point "q" is above or below the segment
             cg3::Segment2d segment = trapezoidalMapData.getSegment(node.getIdx());
-            orderSegment(segment);
+            ProjectUtils::orderSegment(segment);
             if(cg3::isPointAtLeft(segment, q)){ // return true if the point is above, false otherwise
                 node = dag.getNode(node.getLeftIdx());
             }else{
@@ -162,7 +131,7 @@ std::vector<size_t> followSegment(const cg3::Segment2d &segment, const Dag &dag,
  * @brief Initialize the data structures Trapezoidal Map and DAG
  * @param[in] dag The DAG search structure
  * @param[in] trapezoidalMap The trapezoidal Map data structure
- *
+ * Initializes the structures with the first trapezoid that is represented by the bounding box
  */
 void initializeStructures(Dag &dag, DrawableTrapezoidalMap &trapezoidalMap){
     // The trapezoidal map for the empty set consist of a single trapezoid, which is the bounding rectangle.
@@ -183,9 +152,19 @@ void initializeStructures(Dag &dag, DrawableTrapezoidalMap &trapezoidalMap){
     dag.addNode(boundingBoxNode);
 }
 
+/**
+ * @brief Incremental building algorithm for Trapezoidal Map and the DAG structures
+ * @param[in] segment the segment added to the trapezoidal map
+ * @param[in] dag The DAG search structure
+ * @param[in] trapezoidalMap The trapezoidal Map data structure
+ * @param[in] trapezoidalMapData the trapezoidal map dataset structure
+ * First compute the intersection by calling the function followSegment, then if the number of intersection is 1 call the function oneIntersectedTrapezoid
+ * if more trapezoid are intersected then call the moreIntersectedTrapezoids function.
+ *
+ */
 void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, DrawableTrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData){
+    trapezoidalMap.setHighlightedTrap(std::numeric_limits<size_t>::max()); // Setting no one highlighted trapezoid
     // Before adding a segment is necessary to: Determine a bounding box R that contains all segments of S, and initialize the trapezoidal map structure T and search structure D for it.
-
     // Ordering the segment for ensuring that the second point (p2) is the right endpoint of the segment
     cg3::Segment2d orderedSegment = segment;
     if (segment.p1().x() > segment.p2().x()) {
@@ -208,7 +187,16 @@ void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, DrawableTrapez
     }
 }
 
-
+/**
+ * @brief Update the structures (trapezoidal map and dag) when the inserted segment intersect only one trapezoid.
+ * @param[in] segment the inserted segment
+ * @param[in] intersectedTrapIdx the index of the intersected trapezoid
+ * @param[in] dag The DAG search structure
+ * @param[in] trapezoidalMap The trapezoidal Map data structure
+ * @param[in] trapezoidalMapData the trapezoidal map dataset structure
+ * Compute the trapezoidal map after the insertion of a segment that intersect only one trapezoid.
+ * The insertion can create at least 2 new trapezoid (top and bottom) and at most 4 trapezoids (Top, bottom, left and right).
+ */
 void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTrapIdx, Dag &dag, DrawableTrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData){
 
     // Utility - use the max value of size_t as arbitrary index for a null index
@@ -277,11 +265,11 @@ void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTr
 
     Trapezoid topTrapezoid = Trapezoid(intersectedTrapCopy.getTopSegment(), segment, segment.p1(), segment.p2());
     if(leftTrapezoidExists) topTrapezoid.setUpperLeftNeighbor(leftTrapezoidIdx);
-    else if (!leftPointEqualTopLeftEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperLeftNeighbor(intersectedTrapCopy.getUpperLeftNeighbor());
+    else if (! ProjectUtils::leftPointEqualTopLeftEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperLeftNeighbor(intersectedTrapCopy.getUpperLeftNeighbor());
     else topTrapezoid.setUpperLeftNeighbor(nullIdx);
     // - top right neighbor
     if(rightTrapezoidExists) topTrapezoid.setUpperRightNeigbor(rightTrapezoidIdx);
-    else if (!rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
+    else if (! ProjectUtils::rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
     else topTrapezoid.setUpperRightNeigbor(nullIdx);
     // - No lower Neighbor
     topTrapezoid.setLowerLeftNeighbor(nullIdx);
@@ -298,11 +286,11 @@ void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTr
     bottomTrapezoid.setUpperRightNeigbor(nullIdx);
     // - lower left neighbor
     if(leftTrapezoidExists) bottomTrapezoid.setLowerLeftNeighbor(leftTrapezoidIdx);
-    else if(!leftPointEqualBottomLeftEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerLeftNeighbor(intersectedTrapCopy.getLowerLeftNeighbor());
+    else if(!ProjectUtils::leftPointEqualBottomLeftEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerLeftNeighbor(intersectedTrapCopy.getLowerLeftNeighbor());
     else bottomTrapezoid.setLowerLeftNeighbor(nullIdx);
     // - lower right neighbor
     if(rightTrapezoidExists) bottomTrapezoid.setLowerRightNeighbor(rightTrapezoidIdx);
-    else if(!rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
+    else if(!ProjectUtils::rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
     else bottomTrapezoid.setLowerRightNeighbor(nullIdx);
     bottomTrapezoid.setNodeIdx(bottomTrapLeaf);
     trapezoidalMap.addTrapezoid(bottomTrapezoid);
@@ -383,6 +371,16 @@ void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTr
     dag.addNode(newNode);
 }
 
+/**
+ * @brief Update the structures (trapezoidal map and dag) when the inserted segment intersect more than one trapezoid.
+ * @param[in] segment the inserted segment
+ * @param[in] intersectedTraps the indexes of the intersected trapezoids
+ * @param[in] dag The DAG search structure
+ * @param[in] trapezoidalMap The trapezoidal Map data structure
+ * @param[in] trapezoidalMapData the trapezoidal map dataset structure
+ * Compute the trapezoidal map after the insertion of a segment that intersect more than one trapezoid.
+ * The insertion can create several new trapezoids. The algorithm steps are divided in 3 macro steps: First trapezoid intersected, internal trapezoids intersected and last trapezoid intersected.
+ */
 void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t> intersectedTraps, Dag &dag, DrawableTrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData){
     // Utility - use the max value of size_t as arbitrary index for a null index
     size_t nullIdx = std::numeric_limits<size_t>::max();
@@ -448,7 +446,7 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
     Trapezoid topTrapezoid = Trapezoid(intersectedTrapCopy.getTopSegment(), segment, segment.p1(), cg3::Point2d(0,0)); // Unknown right point update later
     // Setting its neighbors
     if(leftTrapezoidExists) topTrapezoid.setUpperLeftNeighbor(leftTrapezoidIdx);
-    else if (!leftPointEqualTopLeftEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperLeftNeighbor(intersectedTrapCopy.getUpperLeftNeighbor());
+    else if (!ProjectUtils::leftPointEqualTopLeftEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperLeftNeighbor(intersectedTrapCopy.getUpperLeftNeighbor());
     else topTrapezoid.setUpperLeftNeighbor(nullIdx);
     topTrapezoid.setUpperRightNeigbor(nullIdx);
     topTrapezoid.setLowerLeftNeighbor(nullIdx);
@@ -462,7 +460,7 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
     bottomTrapezoid.setUpperRightNeigbor(nullIdx);
     bottomTrapezoid.setLowerRightNeighbor(nullIdx);
     if(leftTrapezoidExists) bottomTrapezoid.setLowerLeftNeighbor(leftTrapezoidIdx);
-    else if(!leftPointEqualBottomLeftEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerLeftNeighbor(intersectedTrapCopy.getLowerLeftNeighbor());
+    else if(!ProjectUtils::leftPointEqualBottomLeftEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerLeftNeighbor(intersectedTrapCopy.getLowerLeftNeighbor());
     else bottomTrapezoid.setLowerLeftNeighbor(nullIdx);
     bottomTrapezoid.setNodeIdx(bottomTrapLeaf);    // Dag leaf idx
 
@@ -642,7 +640,7 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
         bottomTrapezoid.setRightPoint(segment.p2());
         bottomTrapezoid.setUpperRightNeigbor(nullIdx);
         if(!rightTrapezoidExists){// if right trapezoid exists it will be updated after we add it to the trapezoidal map
-            if(!rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
+            if(!ProjectUtils::rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
             else bottomTrapezoid.setLowerRightNeighbor(nullIdx);
         }
         if(!trapezoidalMap.replaceTrapezoid(bottomTrapezoid, previousBottomTrapIdx)) trapezoidalMap.addTrapezoid(bottomTrapezoid);
@@ -651,7 +649,7 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
         topTrapezoid = Trapezoid(intersectedTrapCopy.getTopSegment(), segment, intersectedTrapCopy.getLeftPoint(), segment.p2());
         topTrapezoid.setUpperLeftNeighbor(intersectedTrapCopy.getUpperLeftNeighbor());
         if(!rightTrapezoidExists){// if right trapezoid exists it will be updated after we add it to the trapezoidal map
-            if (!rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
+            if (!ProjectUtils::rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
             else topTrapezoid.setUpperRightNeigbor(nullIdx);
         }
         topTrapezoid.setLowerLeftNeighbor(previousTopTrapIdx);
@@ -678,7 +676,7 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
         topTrapezoid.setRightPoint(segment.p2());
         topTrapezoid.setLowerRightNeighbor(nullIdx);
         if(!rightTrapezoidExists){// if right trapezoid exists it will be updated after we add it to the trapezoidal map
-            if (!rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
+            if (!ProjectUtils::rightPointEqualTopRightEndpoint(intersectedTrapCopy)) topTrapezoid.setUpperRightNeigbor(intersectedTrapCopy.getUpperRightNeighbor());
             else topTrapezoid.setUpperRightNeigbor(nullIdx);
         }
         if(!trapezoidalMap.replaceTrapezoid(topTrapezoid, previousTopTrapIdx)) trapezoidalMap.addTrapezoid(topTrapezoid);
@@ -689,7 +687,7 @@ void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t
         bottomTrapezoid.setUpperRightNeigbor(nullIdx);
         bottomTrapezoid.setLowerLeftNeighbor(intersectedTrapCopy.getLowerLeftNeighbor());
         if(!rightTrapezoidExists){// if right trapezoid exists it will be updated after we add it to the trapezoidal map
-            if(!rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
+            if(!ProjectUtils::rightPointEqualBottomRightEndpoint(intersectedTrapCopy)) bottomTrapezoid.setLowerRightNeighbor(intersectedTrapCopy.getLowerRightNeighbor());
             else bottomTrapezoid.setLowerRightNeighbor(nullIdx);
         }
         bottomTrapezoid.setNodeIdx(bottomTrapLeaf);

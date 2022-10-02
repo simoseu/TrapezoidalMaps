@@ -1,7 +1,6 @@
 #include "drawable_trapezoidalmap.h"
 
 #include <cg3/viewer/opengl_objects/opengl_objects2.h>
-
 /**
  * @brief Constructor
  * @param[in] upperLeftPointBB the upper left point of the bounding box
@@ -12,24 +11,6 @@ DrawableTrapezoidalMap::DrawableTrapezoidalMap(cg3::Point2d upperLeftPointBB, cg
     highlightedTrap(std::numeric_limits<size_t>::max())
 {
 
-}
-
-/**
- * @brief generate a random color
- * @return a random generated color
-*/
-const cg3::Color DrawableTrapezoidalMap::randomColor() const{
-
-    float red = std::rand()%256;
-    float green = std::rand()%256;
-    float blue = std::rand()%256;
-
-
-    red = (red + 186) / 2;
-    green = (green + 225) / 2;
-    blue = (blue + 255) / 2;
-
-    return cg3::Color(red, green, blue);
 }
 
 /**
@@ -87,7 +68,8 @@ double DrawableTrapezoidalMap::sceneRadius() const
 
 void DrawableTrapezoidalMap::addTrapezoid(Trapezoid &trapezoid){
     // Add the color for the trap in the vector of color
-    colors.push_back(randomColor());
+    if(colors.size()>0)colors.push_back(ProjectUtils::randomColor());
+    else colors.push_back(cg3::Color(200,220,250));
     TrapezoidalMap::addTrapezoid(trapezoid);
 }
 

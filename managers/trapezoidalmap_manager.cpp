@@ -11,10 +11,7 @@
 
 #include "utils/fileutils.h"
 
-// !!!!!TEST (DA RIMUOVERE)
-#include <cg3/geometry/utils2.h>
-
-#include "algorithms.h"
+#include "algorithms/algorithms.h"
 
 //Limits for the bounding box
 //It defines where points can be added
@@ -208,52 +205,10 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //it more efficient in memory. However, depending on how you implement your algorithms and data 
     //structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
 
-    //std::vector<Trapezoid> t = drawableTrapezoidalMap.getTrapezoids();
-    /*
-    for(size_t i=0; i < t.size(); i++){
-        std::cout << "Trap #" << i << " " << t[i].getNodeIdx() << std::endl;
 
-    }
-    std::vector<Node> n = dag.getNodes();
-
-    for(size_t i=0; i < n.size(); i++){
-        std::cout << "Node #" << i << " " <<n[i].getIdx() << " Tipo: " << n[i].printType() << std::endl;
-    }
-    */
-    //std::cout << "-----------------------Added-------------" <<std::endl;
     algorithms::buildTrapezoidalMap(segment, dag, drawableTrapezoidalMap, drawableTrapezoidalMapDataset);
 
-    //t = drawableTrapezoidalMap.getTrapezoids();
-    //n = dag.getNodes();
-    /*
-    for(size_t i=0; i < t.size(); i++){
-        std::cout << "Trap #" << i << " " << t[i].getNodeIdx() << std::endl;
-        std::cout << "Top segment: p1(" << t[i].getTopSegment().p1().x() << ", " << t[i].getTopSegment().p1().y() << ")";
-        std::cout << " p2(" << t[i].getTopSegment().p2().x() << ", " << t[i].getTopSegment().p2().y() << ")" << std::endl;
-        std::cout << "Bottom segment: p1(" << t[i].getBottomSegment().p1().x() << ", " << t[i].getBottomSegment().p1().y() << ")";
-        std::cout << " p2(" << t[i].getBottomSegment().p2().x() << ", " << t[i].getBottomSegment().p2().y() << ")" << std::endl;
 
-        std::cout << "LeftPoint: (" << t[i].getLeftPoint().x() << ", " << t[i].getLeftPoint().y() << ") ";
-        std::cout << "RightPoint: (" << t[i].getRightPoint().x() << ", " << t[i].getRightPoint().y() << ") " << std::endl;
-
-        std::cout <<"" <<std::endl;
-
-        std::cout << "UpperLeft Corner: (" << t[i].getCorners()[0].x() << ", " << t[i].getCorners()[0].y() << ")" << std::endl;
-        std::cout << "UpperRight Corner: (" << t[i].getCorners()[1].x() << ", " << t[i].getCorners()[1].y() << ")" << std::endl;
-        std::cout << "LowerRight Corner: (" << t[i].getCorners()[2].x() << ", " << t[i].getCorners()[2].y() << ")" << std::endl;
-        std::cout << "LowerLeft Corner: (" << t[i].getCorners()[3].x() << ", " << t[i].getCorners()[3].y() << ")" << std::endl;
-
-        std::cout << "--------------------" <<std::endl;
-    }
-
-    for(size_t i=0; i < n.size(); i++){
-        std::cout << "Leaf #" << i << " " <<n[i].getIdx() << " Tipo: " << n[i].printType() << std::endl;
-    }
-
-    // Devo aggiornare l'id nel trapezoid
-    //std::cout << dag.getNode(t.getNodeIdx()).getType();
-
-    */
     //#####################################################################
 
 
@@ -294,13 +249,9 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
     //THINK ABOUT YOUR STRUCTURE BEFORE WRITING CODE!
 
 
-
-    //#####################################################################
     size_t trapIdx = algorithms::queryPoint(queryPoint, dag, drawableTrapezoidalMapDataset);
+    //#####################################################################
 
-
-    std::cout << "" << std::endl;
-    std::cout << "Il punto si trova nel trapezoid con index: " << algorithms::queryPoint(queryPoint, dag, drawableTrapezoidalMapDataset) << std::endl;
 
     //---------------------------------------------------------------------
     //When you find the trapezoid in which the point is contained, you should highlight
@@ -311,8 +262,8 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 
 
 
-    //#####################################################################
     drawableTrapezoidalMap.setHighlightedTrap(trapIdx);
+    //#####################################################################
 
 
     //You can delete this line after you implement the algorithm: it is

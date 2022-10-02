@@ -8,7 +8,7 @@
 #include "drawables/drawable_trapezoidalmap.h"
 
 /**
- * @brief Algorithms
+ * @brief Algorithms to build the trapezoidal map and the associated Dag, and to query these structures
  */
 namespace algorithms{
     void initializeStructures(Dag &dag, DrawableTrapezoidalMap &trapezoidalMap);
@@ -24,15 +24,6 @@ namespace algorithms{
     void oneIntersectedTrapezoid(const cg3::Segment2d &segment, size_t intersectedTrapIdx, Dag &dag, DrawableTrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData);
 
     void moreIntersectedTrapezoids(const cg3::Segment2d &segment, std::vector<size_t> intersectedTraps, Dag &dag, DrawableTrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData);
-
-
-    bool leftPointEqualLeftEndpoint(const Trapezoid &trapezoid);
-
-    bool leftPointEqualRightEndpoint(const Trapezoid &trapezoid);
-
-    bool leftPointEqualBottomLeftEndpoint(const Trapezoid &trapezoid);
-
-    bool rightPointEqualBottomRightEndpoint(const Trapezoid &trapezoid);
 }
 
 #endif // ALGORITHMS_H
