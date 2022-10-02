@@ -19,9 +19,10 @@ public:
 
     const Trapezoid &getTrapezoid(size_t idx) const;
     Trapezoid &getTrapezoid(size_t idx);
+    size_t numTrapezoids() const;
 
     // Necessary for replacing old trapezoids when a new segment is added
-    void replaceTrapezoid(Trapezoid &trapezoid, size_t idx);
+    bool replaceTrapezoid(Trapezoid &trapezoid, size_t idx);
 
     const cg3::BoundingBox2 &getBoundingBox() const;
 

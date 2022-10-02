@@ -17,6 +17,7 @@ public:
     void replaceNode(Node &node, size_t idx);
     const std::vector<Node> &getNodes() const;
     const Node &getNode(size_t idx) const;
+    size_t numNodes() const;
 
     const Node &getRoot() const;
 

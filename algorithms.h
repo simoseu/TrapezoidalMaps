@@ -11,6 +11,8 @@
  * @brief Algorithms
  */
 namespace algorithms{
+    size_t querySegment(const cg3::Segment2d &segment, const Dag &dag, const TrapezoidalMapDataset &trapezoidalMapData);
+
     void initializeStructures(Dag &dag, DrawableTrapezoidalMap &trapezoidalMap);
 
     void buildTrapezoidalMap(const cg3::Segment2d &segment, Dag &dag, DrawableTrapezoidalMap &trapezoidalMap, TrapezoidalMapDataset &trapezoidalMapData);

@@ -20,10 +20,17 @@ Trapezoid &TrapezoidalMap::getTrapezoid(size_t index){
     return trapezoids[index];
 }
 
-void TrapezoidalMap::replaceTrapezoid(Trapezoid &trapezoid, size_t idx){
+bool TrapezoidalMap::replaceTrapezoid(Trapezoid &trapezoid, size_t idx){
+    if(idx >= trapezoids.size()) return false;
+
     trapezoids[idx] = trapezoid;
+    return true;
 }
 
 const cg3::BoundingBox2 &TrapezoidalMap::getBoundingBox() const{
     return boundingBox;
+}
+
+size_t TrapezoidalMap::numTrapezoids() const{
+    return trapezoids.size();
 }

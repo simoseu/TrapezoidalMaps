@@ -21,3 +21,7 @@ const Node &Dag::getNode(size_t idx) const{
 const Node &Dag::getRoot() const{
     return nodes[0];
 }
+
+size_t Dag::numNodes() const{
+    return nodes.size();
+}

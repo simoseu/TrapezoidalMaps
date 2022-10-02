@@ -208,8 +208,8 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //it more efficient in memory. However, depending on how you implement your algorithms and data 
     //structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
 
-    std::vector<Trapezoid> t = drawableTrapezoidalMap.getTrapezoids();
-
+    //std::vector<Trapezoid> t = drawableTrapezoidalMap.getTrapezoids();
+    /*
     for(size_t i=0; i < t.size(); i++){
         std::cout << "Trap #" << i << " " << t[i].getNodeIdx() << std::endl;
 
@@ -219,12 +219,13 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     for(size_t i=0; i < n.size(); i++){
         std::cout << "Node #" << i << " " <<n[i].getIdx() << " Tipo: " << n[i].printType() << std::endl;
     }
-
+    */
+    //std::cout << "-----------------------Added-------------" <<std::endl;
     algorithms::buildTrapezoidalMap(segment, dag, drawableTrapezoidalMap, drawableTrapezoidalMapDataset);
 
-    t = drawableTrapezoidalMap.getTrapezoids();
-    n = dag.getNodes();
-
+    //t = drawableTrapezoidalMap.getTrapezoids();
+    //n = dag.getNodes();
+    /*
     for(size_t i=0; i < t.size(); i++){
         std::cout << "Trap #" << i << " " << t[i].getNodeIdx() << std::endl;
         std::cout << "Top segment: p1(" << t[i].getTopSegment().p1().x() << ", " << t[i].getTopSegment().p1().y() << ")";
@@ -252,7 +253,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     // Devo aggiornare l'id nel trapezoid
     //std::cout << dag.getNode(t.getNodeIdx()).getType();
 
-
+    */
     //#####################################################################
 
 
