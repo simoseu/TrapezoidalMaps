@@ -6,7 +6,6 @@
 //Do not change the following line
 #define BOUNDINGBOX 1e+6
 
-
 namespace algorithms{
 
 /**
